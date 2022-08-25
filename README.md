@@ -12,6 +12,11 @@
 ## Overview
 - Uses rust bindgen to generate bindings to the Everything SDK C API
 
+## Documentation
+- [Everything SDK](https://www.voidtools.com/support/everything/sdk/)
+- [Rust Bindgen](https://rust-lang.github.io/rust-bindgen/)
+- [Rust FFI](https://doc.rust-lang.org/nomicon/ffi.html)
+
 ## Building
 After creating the target directory, you must copy the dll file to the target directory.  
 The dll file can be found in the Everything SDK installation directory.  
