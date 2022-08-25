@@ -14,6 +14,7 @@ fn main() {
     // Tell cargo to invalidate the built crate whenever the wrapper changes
     println!("cargo:rerun-if-changed=wrapper.h");
 
+    // Only generate bindings for the everything API
     let everything_regex_filter = "Everything.*|EVERYTHING.*";
 
     // The bindgen::Builder is the main entry point
