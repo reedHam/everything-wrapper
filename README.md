@@ -29,4 +29,5 @@ The dll file is named `Everything64.dll`
 - [ ] Add util functions for converting between rust types and c types.
 - [ ] Add documentation to the wrapper.
 - [ ] Add script for moving the dll file to the target directory.
-
+- [ ] Write a function that makes use of the query callback in the Everything SDK.
+- [ ] Write a function that uses threads to not block while waiting for everything to finish searching.
