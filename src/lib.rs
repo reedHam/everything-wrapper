@@ -4,7 +4,20 @@
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
-use widestring::U16CString;
+use widestring::*;
+
+pub fn query(query: &str) -> DWORD {
+    let query_c_str = match U16CString::from_str(query) {
+        Ok(res) => res,
+        Err(_) => return 0,
+    };
+    unsafe {
+        Everything_SetSearchW(query_c_str.as_ptr());
+        Everything_SetRequestFlags(EVERYTHING_REQUEST_FILE_NAME | EVERYTHING_REQUEST_PATH);
+        Everything_QueryW(true as BOOL);
+        Everything_GetNumResults()
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -13,7 +26,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn version() {
+    fn reports_version() {
         unsafe {
             let major = Everything_GetMajorVersion();
             let minor = Everything_GetMinorVersion();
@@ -28,14 +41,9 @@ mod tests {
     }
 
     #[test]
-    fn query() {
-        unsafe {
-            Everything_SetSearchW(U16CString::from(u16cstr!("")).as_ptr());
-            Everything_SetRequestFlags(EVERYTHING_REQUEST_FILE_NAME | EVERYTHING_REQUEST_PATH);
-            Everything_QueryW(true as BOOL);
-            let num_results = Everything_GetNumResults();
-            println!("Everything num results: {}", num_results);
-            assert!(num_results > 0);
-        }
+    fn gets_results() {
+        let num_results = query("");
+        println!("Everything num results: {}", num_results);
+        assert!(num_results > 0);
     }
 }
