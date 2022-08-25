@@ -14,15 +14,15 @@ fn main() {
     // Tell cargo to invalidate the built crate whenever the wrapper changes
     println!("cargo:rerun-if-changed=wrapper.h");
 
+    let everything_regex_filter = "Everything.*|EVERYTHING.*";
+
     // The bindgen::Builder is the main entry point
     // to bindgen, and lets you build up options for
     // the resulting bindings.
     let bindings = bindgen::Builder::default()
-        .blocklist_type("_IMAGE_TLS_DIRECTORY64")
-        .blocklist_type("IMAGE_TLS_DIRECTORY64")
-        .blocklist_type("PIMAGE_TLS_DIRECTORY64")
-        .blocklist_type("IMAGE_TLS_DIRECTORY")
-        .blocklist_type("PIMAGE_TLS_DIRECTORY")
+        .allowlist_function(everything_regex_filter)
+        .allowlist_type(everything_regex_filter)
+        .allowlist_var(everything_regex_filter)
         // The input header we would like to generate
         // bindings for.
         .header("wrapper.h")
