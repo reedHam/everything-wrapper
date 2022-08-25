@@ -5,7 +5,9 @@
 - Windows 64-bit
 
 ## Development Requirements
-- Rust 1.62.1
+- clang 14.0.5 x86_64-pc-windows-msvc
+- Rust 1.62.1 stable-x86_64-pc-windows-msvc
+- Visual Studio 2019
 
 ## Overview
 - Uses rust bindgen to generate bindings to the Everything SDK C API
