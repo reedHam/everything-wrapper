@@ -6,7 +6,7 @@ use std::path::PathBuf;
 fn main() {
     // Code modified from https://rust-lang.github.io/rust-bindgen/tutorial-3.html
     // Tell cargo to look for shared libraries in the specified directory
-    println!("cargo:rustc-link-search=Everything-SDK\\lib");
+    println!("cargo:rustc-link-search=C:\\github\\everything-rust-wrapper\\Everything-SDK\\lib");
 
     // shared library.
     println!("cargo:rustc-link-lib=Everything64");
