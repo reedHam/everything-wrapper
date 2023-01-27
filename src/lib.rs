@@ -8,9 +8,12 @@ pub mod EverythingSDK {
 
     use bitflags::bitflags;
     use num_enum::TryFromPrimitive;
+    use serde::Deserialize;
+    use ts_rs::TS;
 
-    #[derive(Debug, TryFromPrimitive, PartialEq)]
+    #[derive(Debug, TS, TryFromPrimitive, PartialEq)]
     #[repr(u32)]
+    #[ts(export)]
     pub enum EverythingError {
         // no error detected
         Ok = EVERYTHING_OK,
@@ -34,8 +37,9 @@ pub mod EverythingSDK {
         InvalidParameter = EVERYTHING_ERROR_INVALIDPARAMETER,
     }
 
-    #[derive(Debug, TryFromPrimitive)]
+    #[derive(Deserialize, TS, Debug, TryFromPrimitive)]
     #[repr(u32)]
+    #[ts(export)]
     pub enum EverythingSort {
         NameAsc = EVERYTHING_SORT_NAME_ASCENDING,
         NameDesc = EVERYTHING_SORT_NAME_DESCENDING,
@@ -66,6 +70,7 @@ pub mod EverythingSDK {
     }
 
     bitflags! {
+        #[derive(Deserialize, TS)]
         pub struct EverythingRequestFlags: u32 {
             const FileName = EVERYTHING_REQUEST_FILE_NAME;
             const Path = EVERYTHING_REQUEST_PATH;
@@ -85,9 +90,38 @@ pub mod EverythingSDK {
             const HighlightedFullPathAndFileName = EVERYTHING_REQUEST_HIGHLIGHTED_FULL_PATH_AND_FILE_NAME;
         }
     }
+
+    #[derive(Deserialize, TS, Debug, TryFromPrimitive)]
+    #[ts(export)]
+    #[repr(u32)]
+    pub enum EverythingRequestFlagsEnum {
+        FileName = EVERYTHING_REQUEST_FILE_NAME,
+        Path = EVERYTHING_REQUEST_PATH,
+        FullPathAndFileName = EVERYTHING_REQUEST_FULL_PATH_AND_FILE_NAME,
+        Extension = EVERYTHING_REQUEST_EXTENSION,
+        Size = EVERYTHING_REQUEST_SIZE,
+        DateCreated = EVERYTHING_REQUEST_DATE_CREATED,
+        DateModified = EVERYTHING_REQUEST_DATE_MODIFIED,
+        DateAccessed = EVERYTHING_REQUEST_DATE_ACCESSED,
+        Attributes = EVERYTHING_REQUEST_ATTRIBUTES,
+        FileListFileName = EVERYTHING_REQUEST_FILE_LIST_FILE_NAME,
+        RunCount = EVERYTHING_REQUEST_RUN_COUNT,
+        DateRun = EVERYTHING_REQUEST_DATE_RUN,
+        DateRecentlyChanged = EVERYTHING_REQUEST_DATE_RECENTLY_CHANGED,
+        HighlightedFileName = EVERYTHING_REQUEST_HIGHLIGHTED_FILE_NAME,
+        HighlightedPath = EVERYTHING_REQUEST_HIGHLIGHTED_PATH,
+        HighlightedFullPathAndFileName = EVERYTHING_REQUEST_HIGHLIGHTED_FULL_PATH_AND_FILE_NAME,
+    }
+
+    #[derive(Deserialize, TS)]
+    #[ts(export)]
+    pub enum ResultType {
+        File,
+        Path,
+        FullPath,
+    }
 }
 
-use std::path::PathBuf;
 use widestring::*;
 use EverythingSDK::*;
 
@@ -96,7 +130,8 @@ pub struct Everything;
 impl Everything {
     fn parse_string_ptr(ptr: *const u16) -> String {
         if ptr.is_null() {
-            Everything::get_last_error();
+            let error_code = Everything::get_last_error();
+            panic!("Error code: {:?}", error_code);
         }
         unsafe { U16CStr::from_ptr_str(ptr).to_string_lossy() }
     }
@@ -162,9 +197,9 @@ impl Everything {
         unsafe { Self::parse_string_ptr(Everything_GetSearchW()) }
     }
 
-    pub fn set_request_flags(self: &Self, flag: EverythingRequestFlags) {
+    pub fn set_request_flags(self: &Self, flag: u32) {
         unsafe {
-            Everything_SetRequestFlags(flag.bits());
+            Everything_SetRequestFlags(flag);
         }
     }
 
@@ -205,17 +240,37 @@ impl Everything {
         unsafe { Everything_GetNumResults() }
     }
 
+    pub fn name_iter(self: &Self) -> impl Iterator<Item = String> + '_ {
+        (0..self.get_num_results()).map(|i| self.get_result_file_name(i))
+    }
+
+    pub fn path_iter(
+        self: &Self,
+        start: u32,
+        end: u32,
+        result_type: EverythingSDK::ResultType,
+    ) -> impl Iterator<Item = String> + '_ {
+        (self.clamp_index(start)..self.clamp_index(end)).map(move |i| match result_type {
+            EverythingSDK::ResultType::File => self.get_result_file_name(i),
+            EverythingSDK::ResultType::Path => self.get_result_file_path(i),
+            EverythingSDK::ResultType::FullPath => self.get_result_full_path(i),
+        })
+    }
+
     pub fn get_result_full_path(self: &Self, index: DWORD) -> String {
         let index = self.clamp_index(index);
         unsafe {
-            let file_path = Everything_GetResultPathW(index);
-            let file = Everything_GetResultFileNameW(index);
+            let file_path_ptr = Everything_GetResultPathW(index);
+            let file_ptr = Everything_GetResultFileNameW(index);
 
-            PathBuf::from(Self::parse_string_ptr(file_path))
-                .join(Self::parse_string_ptr(file))
-                .to_str()
-                .unwrap()
-                .to_string()
+            let file_path = Self::parse_string_ptr(file_path_ptr);
+            let file = Self::parse_string_ptr(file_ptr);
+
+            if file_path.is_empty() {
+                return file;
+            }
+
+            format!("{}\\{}", file_path, file)
         }
     }
 
@@ -251,7 +306,6 @@ impl Everything {
 
 impl Drop for Everything {
     fn drop(self: &mut Self) {
-        println!("clean up");
         self.cleanup();
     }
 }
@@ -276,7 +330,7 @@ mod tests {
     #[test]
     fn reports_version() {
         let version = Everything::version();
-        assert_eq!(version, "1.4.1");
+        assert_eq!(version, "1.5.0");
     }
 
     #[test]
@@ -297,8 +351,9 @@ mod tests {
         everything.set_search(".mp4");
         assert_eq!(everything.get_search(), ".mp4");
 
-        everything
-            .set_request_flags(EverythingRequestFlags::FileName | EverythingRequestFlags::Path);
+        everything.set_request_flags(
+            (EverythingRequestFlags::FileName | EverythingRequestFlags::Path).bits(),
+        );
 
         let num_results = everything.query();
         assert!(num_results > 0);
@@ -320,6 +375,42 @@ mod tests {
         }
     }
 
+    #[test]
+    fn get_one_result() {
+        let everything = EVERYTHING.lock().unwrap();
+        everything.reset();
+
+        everything.set_search("test");
+
+        everything.set_request_flags(
+            (EverythingRequestFlags::FileName | EverythingRequestFlags::Path).bits(),
+        );
+
+        let num_results = everything.query();
+
+        println!("Num results: {}", num_results);
+
+        assert!(num_results > 0);
+
+        let file_name = everything.get_result_file_name(0);
+
+        println!("File name: {}", file_name);
+
+        assert!(file_name.len() > 0);
+
+        let file_path = everything.get_result_file_path(0);
+
+        println!("File path: {}", file_path);
+
+        assert!(file_path.len() > 0);
+
+        let full_path = everything.get_result_full_path(0);
+
+        println!("Full path: {}", full_path);
+
+        assert!(full_path.len() > 0);
+    }
+
     fn init_search() -> u32 {
         let everything = EVERYTHING.lock().unwrap();
         everything.reset();
@@ -329,8 +420,9 @@ mod tests {
         everything.set_search(search_filter);
         assert_eq!(everything.get_search(), search_filter);
 
-        everything
-            .set_request_flags(EverythingRequestFlags::FileName | EverythingRequestFlags::Path);
+        everything.set_request_flags(
+            (EverythingRequestFlags::FileName | EverythingRequestFlags::Path).bits(),
+        );
 
         let num_results = everything.query();
         assert!(num_results > 0);
