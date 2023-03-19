@@ -1,12 +1,14 @@
 extern crate bindgen;
 
 use std::env;
-use std::path::PathBuf;
+use std::fs::canonicalize;
+use std::path::*;
 
 fn main() {
     // Code modified from https://rust-lang.github.io/rust-bindgen/tutorial-3.html
     // Tell cargo to look for shared libraries in the specified directory
-    println!("cargo:rustc-link-search=.\\Everything-SDK\\lib");
+    let everything_sdk_path = canonicalize(Path::new("Everything-SDK")).unwrap();
+    println!("cargo:rustc-link-search={}", everything_sdk_path.display());
 
     // shared library.
     println!("cargo:rustc-link-lib=Everything64");
