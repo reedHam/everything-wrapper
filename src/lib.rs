@@ -3,17 +3,18 @@
 #![allow(non_snake_case)]
 #![feature(test)]
 
+use strum::{EnumIter, IntoEnumIterator};
 pub mod EverythingSDK {
     include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
     use bitflags::bitflags;
     use num_enum::TryFromPrimitive;
-    use serde::Deserialize;
+    use serde::{Deserialize, Serialize};
+    use strum::{Display, EnumIter};
     use ts_rs::TS;
 
-    #[derive(Debug, TS, TryFromPrimitive, PartialEq)]
+    #[derive(TS, Debug, TryFromPrimitive, PartialEq, Copy, Clone)]
     #[repr(u32)]
-    #[ts(export)]
     pub enum EverythingError {
         // no error detected
         Ok = EVERYTHING_OK,
@@ -37,9 +38,10 @@ pub mod EverythingSDK {
         InvalidParameter = EVERYTHING_ERROR_INVALIDPARAMETER,
     }
 
-    #[derive(Deserialize, TS, Debug, TryFromPrimitive)]
+    #[derive(
+        TS, EnumIter, Debug, Serialize, Deserialize, TryFromPrimitive, Copy, Clone, Display,
+    )]
     #[repr(u32)]
-    #[ts(export)]
     pub enum EverythingSort {
         NameAsc = EVERYTHING_SORT_NAME_ASCENDING,
         NameDesc = EVERYTHING_SORT_NAME_DESCENDING,
@@ -69,8 +71,14 @@ pub mod EverythingSDK {
         DateRunDesc = EVERYTHING_SORT_DATE_RUN_DESCENDING,
     }
 
+    impl Default for EverythingSort {
+        fn default() -> Self {
+            EverythingSort::DateCreatedDesc
+        }
+    }
+
     bitflags! {
-        #[derive(Deserialize, TS)]
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
         pub struct EverythingRequestFlags: u32 {
             const FileName = EVERYTHING_REQUEST_FILE_NAME;
             const Path = EVERYTHING_REQUEST_PATH;
@@ -91,8 +99,7 @@ pub mod EverythingSDK {
         }
     }
 
-    #[derive(Deserialize, TS, Debug, TryFromPrimitive)]
-    #[ts(export)]
+    #[derive(TS, Debug, Deserialize, Copy, Clone)]
     #[repr(u32)]
     pub enum EverythingRequestFlagsEnum {
         FileName = EVERYTHING_REQUEST_FILE_NAME,
@@ -113,8 +120,23 @@ pub mod EverythingSDK {
         HighlightedFullPathAndFileName = EVERYTHING_REQUEST_HIGHLIGHTED_FULL_PATH_AND_FILE_NAME,
     }
 
-    #[derive(Deserialize, TS)]
-    #[ts(export)]
+    impl From<EverythingRequestFlagsEnum> for EverythingRequestFlags {
+        fn from(value: EverythingRequestFlagsEnum) -> Self {
+            EverythingRequestFlags::from_bits_truncate(value as u32)
+        }
+    }
+
+    impl From<Vec<EverythingRequestFlagsEnum>> for EverythingRequestFlags {
+        fn from(value: Vec<EverythingRequestFlagsEnum>) -> Self {
+            let mut flags = EverythingRequestFlags::empty();
+            for flag in value {
+                flags |= flag.into();
+            }
+            flags
+        }
+    }
+
+    #[derive(TS, Debug, Deserialize)]
     pub enum ResultType {
         File,
         Path,
@@ -122,6 +144,7 @@ pub mod EverythingSDK {
     }
 }
 
+use rayon::prelude::*;
 use widestring::*;
 use EverythingSDK::*;
 
@@ -136,12 +159,48 @@ impl Everything {
         unsafe { U16CStr::from_ptr_str(ptr).to_string_lossy() }
     }
 
+    pub fn new() -> Self {
+        Self::wait_db_loaded();
+        Self
+    }
+
     pub fn version() -> String {
         unsafe {
             let major = Everything_GetMajorVersion();
             let minor = Everything_GetMinorVersion();
             let revision = Everything_GetRevision();
             format!("{}.{}.{}", major, minor, revision)
+        }
+    }
+
+    pub fn debug(self: &Self) {
+        unsafe {
+            let actual_sort = EverythingSDK::Everything_GetResultListSort();
+            let actual_flags = EverythingSDK::Everything_GetResultListRequestFlags();
+            let actual_flags = EverythingRequestFlags::from_bits(actual_flags).unwrap();
+
+            println!(
+                "EverythingSDK::Everything_GetResultListRequestFlags() = {:?}",
+                actual_flags
+            );
+
+            if let Ok(actual_sort) = EverythingSort::try_from(actual_sort) {
+                println!(
+                    "EverythingSDK::Everything_GetResultListSort() = {:?}",
+                    actual_sort
+                );
+            } else {
+                println!(
+                    "EverythingSDK::Everything_GetResultListSort() = Unknown sort: {}",
+                    actual_sort
+                );
+            }
+
+            println!("Fast sort:");
+            for sort in EverythingSDK::EverythingSort::iter() {
+                let is_fast = Everything_IsFastSort(sort as u32);
+                println!("{}, {}", is_fast, sort);
+            }
         }
     }
 
@@ -160,13 +219,8 @@ impl Everything {
                     }
                 }
             }
-            panic!("Timeout waiting for database to load");
+            panic!("Timeout waiting for everything to load");
         }
-    }
-
-    pub fn new() -> Self {
-        Self::wait_db_loaded();
-        Self
     }
 
     pub fn reset(self: &Self) {
@@ -197,13 +251,18 @@ impl Everything {
         unsafe { Self::parse_string_ptr(Everything_GetSearchW()) }
     }
 
-    pub fn set_request_flags(self: &Self, flag: u32) {
+    pub fn set_request_flags(self: &Self, flag: EverythingRequestFlags) {
         unsafe {
-            Everything_SetRequestFlags(flag);
+            Everything_SetRequestFlags(flag.bits());
         }
     }
 
+    pub fn get_request_flags(self: &Self) -> EverythingRequestFlags {
+        EverythingRequestFlags::from_bits_truncate(unsafe { Everything_GetRequestFlags() })
+    }
+
     pub fn set_sort(self: &Self, sort: EverythingSort) {
+        println!("Setting sort to {:?}", sort as u32);
         unsafe {
             Everything_SetSort(sort as u32);
         }
@@ -218,7 +277,6 @@ impl Everything {
 
     pub fn query(self: &Self) -> DWORD {
         unsafe {
-            Self::wait_db_loaded();
             Everything_QueryW(true as BOOL);
             self.get_num_results()
         }
@@ -240,17 +298,20 @@ impl Everything {
         unsafe { Everything_GetNumResults() }
     }
 
+    pub fn get_total_results(self: &Self) -> DWORD {
+        unsafe { Everything_GetTotResults() }
+    }
+
     pub fn name_iter(self: &Self) -> impl Iterator<Item = String> + '_ {
         (0..self.get_num_results()).map(|i| self.get_result_file_name(i))
     }
 
     pub fn path_iter(
         self: &Self,
-        start: u32,
-        end: u32,
         result_type: EverythingSDK::ResultType,
     ) -> impl Iterator<Item = String> + '_ {
-        (self.clamp_index(start)..self.clamp_index(end)).map(move |i| match result_type {
+        let end = self.get_num_results();
+        (0..end).map(move |i| match result_type {
             EverythingSDK::ResultType::File => self.get_result_file_name(i),
             EverythingSDK::ResultType::Path => self.get_result_file_path(i),
             EverythingSDK::ResultType::FullPath => self.get_result_full_path(i),
@@ -290,6 +351,39 @@ impl Everything {
         }
     }
 
+    pub fn set_max_results(self: &Self, max_results: DWORD) {
+        unsafe {
+            Everything_SetMax(max_results);
+        }
+    }
+
+    pub fn get_max_results(self: &Self) -> DWORD {
+        unsafe { Everything_GetMax() }
+    }
+
+    pub fn set_result_offset(self: &Self, offset_results: DWORD) {
+        unsafe {
+            Everything_SetOffset(offset_results);
+        }
+    }
+
+    pub fn get_result_offset(self: &Self) -> DWORD {
+        unsafe { Everything_GetOffset() }
+    }
+
+    pub fn search(self: &Self, query: &str, sort: EverythingSort) -> DWORD {
+        self.set_request_flags(
+            EverythingRequestFlags::Path
+                | EverythingRequestFlags::FileName
+                | EverythingRequestFlags::DateCreated
+                | EverythingRequestFlags::DateModified
+                | EverythingRequestFlags::Size,
+        );
+        self.set_sort(sort);
+        self.set_search(query);
+        self.query()
+    }
+
     fn clamp_index(self: &Self, index: DWORD) -> DWORD {
         let num_results = self.get_num_results();
 
@@ -297,7 +391,7 @@ impl Everything {
             return 0;
         }
         if index >= num_results {
-            num_results - 1
+            num_results
         } else {
             index
         }
@@ -319,6 +413,7 @@ mod tests {
     use super::Everything;
     use crate::EverythingSDK::*;
     use lazy_static::lazy_static;
+    use rayon::prelude::*;
     use test::Bencher;
 
     static BENCH_SIZE: u32 = 1;
@@ -339,6 +434,12 @@ mod tests {
     }
 
     #[test]
+    fn debug() {
+        let everything = EVERYTHING.lock().unwrap();
+        everything.debug();
+    }
+
+    #[test]
     fn search() {
         let everything = EVERYTHING.lock().unwrap();
         everything.reset();
@@ -351,9 +452,10 @@ mod tests {
         everything.set_search(".mp4");
         assert_eq!(everything.get_search(), ".mp4");
 
-        everything.set_request_flags(
-            (EverythingRequestFlags::FileName | EverythingRequestFlags::Path).bits(),
-        );
+        everything.set_max_results(10);
+
+        everything
+            .set_request_flags(EverythingRequestFlags::FileName | EverythingRequestFlags::Path);
 
         let num_results = everything.query();
         assert!(num_results > 0);
@@ -382,9 +484,10 @@ mod tests {
 
         everything.set_search("test");
 
-        everything.set_request_flags(
-            (EverythingRequestFlags::FileName | EverythingRequestFlags::Path).bits(),
-        );
+        everything
+            .set_request_flags(EverythingRequestFlags::FileName | EverythingRequestFlags::Path);
+
+        everything.set_max_results(10);
 
         let num_results = everything.query();
 
@@ -420,10 +523,9 @@ mod tests {
         everything.set_search(search_filter);
         assert_eq!(everything.get_search(), search_filter);
 
-        everything.set_request_flags(
-            (EverythingRequestFlags::FileName | EverythingRequestFlags::Path).bits(),
-        );
-
+        everything
+            .set_request_flags(EverythingRequestFlags::FileName | EverythingRequestFlags::Path);
+        everything.set_max_results(10000);
         let num_results = everything.query();
         assert!(num_results > 0);
         num_results
@@ -436,11 +538,18 @@ mod tests {
 
         b.iter(|| {
             for _ in 1..=BENCH_SIZE {
-                let file_names = (0..num_results)
-                    .into_iter()
-                    .map(|j| everything.get_result_full_path(j))
+                let file_names = everything
+                    .path_iter(ResultType::FullPath)
                     .collect::<Vec<String>>();
-                assert!(file_names.len() == num_results as usize);
+
+                let file_count = file_names.len() as u32;
+                let total_results = everything.get_num_results();
+                assert!(
+                    total_results == file_count,
+                    "Total Results {} got {}",
+                    total_results,
+                    file_count
+                );
             }
         })
     }
@@ -474,5 +583,56 @@ mod tests {
                 assert!(file_names.len() == num_results as usize);
             }
         })
+    }
+
+    fn paged_results(page_size: u32) {
+        let everything = EVERYTHING.lock().unwrap();
+        let mut offset = 0;
+        everything.reset();
+        everything.set_max_results(page_size);
+        everything.set_result_offset(offset);
+        everything.set_search("ext:mp4");
+
+        let num_results = everything.query();
+        println!(
+            "Num results: {}-{} out of {}",
+            everything.get_result_offset(),
+            everything.get_result_offset() + everything.get_num_results(),
+            everything.get_total_results()
+        );
+
+        while (offset + num_results) < 100000 {
+            offset += num_results;
+            everything.set_result_offset(offset);
+            let num_results = everything.query();
+            println!(
+                "Num results: {}-{} out of {}",
+                everything.get_result_offset(),
+                everything.get_result_offset() + everything.get_num_results(),
+                everything.get_total_results()
+            );
+        }
+    }
+
+    use std::time::Instant;
+
+    #[test]
+    fn paged_results_test() {
+        let mut results = vec![];
+        for i in 2..=5 {
+            let now = Instant::now();
+
+            paged_results(10_i32.pow(i).try_into().unwrap());
+            let duration = now.elapsed().as_millis();
+            println!("Page Size of {}: {}ms", i, duration);
+            results.push(duration);
+        }
+
+        for i in 0..results.len() {
+            // 10 to the power of i
+            let expected = 10_i32.pow((2 + i).try_into().unwrap());
+
+            println!("Page Size of {}: {}ms", expected, results[i]);
+        }
     }
 }
