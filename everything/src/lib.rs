@@ -36,9 +36,11 @@ impl From<EverythingError> for String {
     }
 }
 
-impl From<u32> for EverythingError {
-    fn from(error: u32) -> Self {
-        match error {
+impl TryFrom<u32> for EverythingError {
+    type Error = &'static str;
+
+    fn try_from(error: u32) -> Result<Self, Self::Error> {
+        let err = match error {
             EVERYTHING_OK => EverythingError::Ok,
             EVERYTHING_ERROR_MEMORY => EverythingError::Memory,
             EVERYTHING_ERROR_IPC => EverythingError::Ipc,
@@ -49,8 +51,126 @@ impl From<u32> for EverythingError {
             EVERYTHING_ERROR_INVALIDCALL => EverythingError::InvalidCall,
             EVERYTHING_ERROR_INVALIDREQUEST => EverythingError::InvalidRequest,
             EVERYTHING_ERROR_INVALIDPARAMETER => EverythingError::InvalidParameter,
-            _ => panic!("Unknown error code: {}", error),
+            _ => Err("Unknown error code")?,
+        };
+        Ok(err)
+    }
+}
+
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum EverythingSort {
+    NameAscending = EVERYTHING_SORT_NAME_ASCENDING,
+    NameDescending = EVERYTHING_SORT_NAME_DESCENDING,
+    PathAscending = EVERYTHING_SORT_PATH_ASCENDING,
+    PathDescending = EVERYTHING_SORT_PATH_DESCENDING,
+    SizeAscending = EVERYTHING_SORT_SIZE_ASCENDING,
+    SizeDescending = EVERYTHING_SORT_SIZE_DESCENDING,
+    ExtensionAscending = EVERYTHING_SORT_EXTENSION_ASCENDING,
+    ExtensionDescending = EVERYTHING_SORT_EXTENSION_DESCENDING,
+    TypeNameAscending = EVERYTHING_SORT_TYPE_NAME_ASCENDING,
+    TypeNameDescending = EVERYTHING_SORT_TYPE_NAME_DESCENDING,
+    DateCreatedAscending = EVERYTHING_SORT_DATE_CREATED_ASCENDING,
+    DateCreatedDescending = EVERYTHING_SORT_DATE_CREATED_DESCENDING,
+    DateModifiedAscending = EVERYTHING_SORT_DATE_MODIFIED_ASCENDING,
+    DateModifiedDescending = EVERYTHING_SORT_DATE_MODIFIED_DESCENDING,
+    AttributesAscending = EVERYTHING_SORT_ATTRIBUTES_ASCENDING,
+    AttributesDescending = EVERYTHING_SORT_ATTRIBUTES_DESCENDING,
+    FileListFilenameAscending = EVERYTHING_SORT_FILE_LIST_FILENAME_ASCENDING,
+    FileListFilenameDescending = EVERYTHING_SORT_FILE_LIST_FILENAME_DESCENDING,
+    RunCountAscending = EVERYTHING_SORT_RUN_COUNT_ASCENDING,
+    RunCountDescending = EVERYTHING_SORT_RUN_COUNT_DESCENDING,
+    DateRecentlyChangedAscending = EVERYTHING_SORT_DATE_RECENTLY_CHANGED_ASCENDING,
+    DateRecentlyChangedDescending = EVERYTHING_SORT_DATE_RECENTLY_CHANGED_DESCENDING,
+    DateAccessedAscending = EVERYTHING_SORT_DATE_ACCESSED_ASCENDING,
+    DateAccessedDescending = EVERYTHING_SORT_DATE_ACCESSED_DESCENDING,
+    DateRunAscending = EVERYTHING_SORT_DATE_RUN_ASCENDING,
+    DateRunDescending = EVERYTHING_SORT_DATE_RUN_DESCENDING,
+}
+
+impl From<EverythingSort> for u32 {
+    fn from(sort: EverythingSort) -> Self {
+        match sort {
+            EverythingSort::NameAscending => EVERYTHING_SORT_NAME_ASCENDING,
+            EverythingSort::NameDescending => EVERYTHING_SORT_NAME_DESCENDING,
+            EverythingSort::PathAscending => EVERYTHING_SORT_PATH_ASCENDING,
+            EverythingSort::PathDescending => EVERYTHING_SORT_PATH_DESCENDING,
+            EverythingSort::SizeAscending => EVERYTHING_SORT_SIZE_ASCENDING,
+            EverythingSort::SizeDescending => EVERYTHING_SORT_SIZE_DESCENDING,
+            EverythingSort::ExtensionAscending => EVERYTHING_SORT_EXTENSION_ASCENDING,
+            EverythingSort::ExtensionDescending => EVERYTHING_SORT_EXTENSION_DESCENDING,
+            EverythingSort::TypeNameAscending => EVERYTHING_SORT_TYPE_NAME_ASCENDING,
+            EverythingSort::TypeNameDescending => EVERYTHING_SORT_TYPE_NAME_DESCENDING,
+            EverythingSort::DateCreatedAscending => EVERYTHING_SORT_DATE_CREATED_ASCENDING,
+            EverythingSort::DateCreatedDescending => EVERYTHING_SORT_DATE_CREATED_DESCENDING,
+            EverythingSort::DateModifiedAscending => EVERYTHING_SORT_DATE_MODIFIED_ASCENDING,
+            EverythingSort::DateModifiedDescending => EVERYTHING_SORT_DATE_MODIFIED_DESCENDING,
+            EverythingSort::AttributesAscending => EVERYTHING_SORT_ATTRIBUTES_ASCENDING,
+            EverythingSort::AttributesDescending => EVERYTHING_SORT_ATTRIBUTES_DESCENDING,
+            EverythingSort::FileListFilenameAscending => {
+                EVERYTHING_SORT_FILE_LIST_FILENAME_ASCENDING
+            }
+            EverythingSort::FileListFilenameDescending => {
+                EVERYTHING_SORT_FILE_LIST_FILENAME_DESCENDING
+            }
+            EverythingSort::RunCountAscending => EVERYTHING_SORT_RUN_COUNT_ASCENDING,
+            EverythingSort::RunCountDescending => EVERYTHING_SORT_RUN_COUNT_DESCENDING,
+            EverythingSort::DateRecentlyChangedAscending => {
+                EVERYTHING_SORT_DATE_RECENTLY_CHANGED_ASCENDING
+            }
+            EverythingSort::DateRecentlyChangedDescending => {
+                EVERYTHING_SORT_DATE_RECENTLY_CHANGED_DESCENDING
+            }
+            EverythingSort::DateAccessedAscending => EVERYTHING_SORT_DATE_ACCESSED_ASCENDING,
+            EverythingSort::DateAccessedDescending => EVERYTHING_SORT_DATE_ACCESSED_DESCENDING,
+            EverythingSort::DateRunAscending => EVERYTHING_SORT_DATE_RUN_ASCENDING,
+            EverythingSort::DateRunDescending => EVERYTHING_SORT_DATE_RUN_DESCENDING,
         }
+    }
+}
+
+impl TryFrom<u32> for EverythingSort {
+    type Error = &'static str;
+
+    fn try_from(sort: u32) -> Result<Self, Self::Error> {
+        let sort = match sort {
+            EVERYTHING_SORT_NAME_ASCENDING => EverythingSort::NameAscending,
+            EVERYTHING_SORT_NAME_DESCENDING => EverythingSort::NameDescending,
+            EVERYTHING_SORT_PATH_ASCENDING => EverythingSort::PathAscending,
+            EVERYTHING_SORT_PATH_DESCENDING => EverythingSort::PathDescending,
+            EVERYTHING_SORT_SIZE_ASCENDING => EverythingSort::SizeAscending,
+            EVERYTHING_SORT_SIZE_DESCENDING => EverythingSort::SizeDescending,
+            EVERYTHING_SORT_EXTENSION_ASCENDING => EverythingSort::ExtensionAscending,
+            EVERYTHING_SORT_EXTENSION_DESCENDING => EverythingSort::ExtensionDescending,
+            EVERYTHING_SORT_TYPE_NAME_ASCENDING => EverythingSort::TypeNameAscending,
+            EVERYTHING_SORT_TYPE_NAME_DESCENDING => EverythingSort::TypeNameDescending,
+            EVERYTHING_SORT_DATE_CREATED_ASCENDING => EverythingSort::DateCreatedAscending,
+            EVERYTHING_SORT_DATE_CREATED_DESCENDING => EverythingSort::DateCreatedDescending,
+            EVERYTHING_SORT_DATE_MODIFIED_ASCENDING => EverythingSort::DateModifiedAscending,
+            EVERYTHING_SORT_DATE_MODIFIED_DESCENDING => EverythingSort::DateModifiedDescending,
+            EVERYTHING_SORT_ATTRIBUTES_ASCENDING => EverythingSort::AttributesAscending,
+            EVERYTHING_SORT_ATTRIBUTES_DESCENDING => EverythingSort::AttributesDescending,
+            EVERYTHING_SORT_FILE_LIST_FILENAME_ASCENDING => {
+                EverythingSort::FileListFilenameAscending
+            }
+            EVERYTHING_SORT_FILE_LIST_FILENAME_DESCENDING => {
+                EverythingSort::FileListFilenameDescending
+            }
+            EVERYTHING_SORT_RUN_COUNT_ASCENDING => EverythingSort::RunCountAscending,
+            EVERYTHING_SORT_RUN_COUNT_DESCENDING => EverythingSort::RunCountDescending,
+            EVERYTHING_SORT_DATE_RECENTLY_CHANGED_ASCENDING => {
+                EverythingSort::DateRecentlyChangedAscending
+            }
+            EVERYTHING_SORT_DATE_RECENTLY_CHANGED_DESCENDING => {
+                EverythingSort::DateRecentlyChangedDescending
+            }
+            EVERYTHING_SORT_DATE_ACCESSED_ASCENDING => EverythingSort::DateAccessedAscending,
+            EVERYTHING_SORT_DATE_ACCESSED_DESCENDING => EverythingSort::DateAccessedDescending,
+            EVERYTHING_SORT_DATE_RUN_ASCENDING => EverythingSort::DateRunAscending,
+            EVERYTHING_SORT_DATE_RUN_DESCENDING => EverythingSort::DateRunDescending,
+            _ => Err("Unknown sort code")?,
+        };
+        Ok(sort)
     }
 }
 
@@ -62,12 +182,20 @@ impl Everything {
             let error_code = Everything::get_last_error();
             panic!("Error code: {:?}", error_code);
         }
-        unsafe { U16CStr::from_ptr_str(ptr).to_string_lossy() }
+        unsafe {
+            if let Ok(string) = U16CStr::from_ptr_str(ptr).to_string() {
+                string
+            } else {
+                let lossy_string = U16CStr::from_ptr_str(ptr).to_string_lossy();
+                println!("Failed to convert path: {:?}", lossy_string);
+                lossy_string
+            }
+        }
     }
 
     pub fn get_last_error() -> EverythingError {
         let error_code = unsafe { Everything_GetLastError() };
-        error_code.into()
+        error_code.try_into().unwrap()
     }
 
     pub fn wait_db_loaded() {
@@ -100,6 +228,30 @@ impl Everything {
         unsafe {
             Everything_SetSearchW(wide_search.as_ptr());
         }
+    }
+
+    pub fn get_search(&self) -> String {
+        let search_ptr = unsafe { Everything_GetSearchW() };
+        Everything::parse_string_ptr(search_ptr)
+    }
+
+    pub fn set_sort(&self, sort: EverythingSort) {
+        unsafe {
+            Everything_SetSort(sort.into());
+        }
+    }
+
+    pub fn get_sort(&self) -> Option<EverythingSort> {
+        let sort = unsafe { Everything_GetSort() };
+        if let Ok(eve_sort) = sort.try_into() {
+            Some(eve_sort)
+        } else {
+            None
+        }
+    }
+
+    pub fn is_fast_sort(&self, sort: EverythingSort) -> bool {
+        unsafe { Everything_IsFastSort(sort.into()) != 0 }
     }
 
     pub fn query(&self, wait: bool) -> Result<(), EverythingError> {
@@ -161,35 +313,28 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_create_everything_instance() {
-        let _everything = Everything::new();
-    }
-
-    #[test]
-    fn test_set_search_and_query() {
+    fn it_functions() {
         let everything = Everything::new();
-        everything.set_search("test");
-        let result = everything.query(true);
-        assert!(result.is_ok());
-    }
 
-    #[test]
-    fn test_result_count() {
-        let everything = Everything::new();
         everything.set_search("test");
+        let search = everything.get_search();
+        assert_eq!(search, "test");
+
+        everything.set_sort(EverythingSort::DateCreatedDescending);
+        let sort = everything.get_sort().unwrap();
+        assert_eq!(sort, EverythingSort::DateCreatedDescending);
+
+        let is_fast_sort = everything.is_fast_sort(sort);
+        assert!(is_fast_sort);
+
+        let is_not_fast_sort = everything.is_fast_sort(EverythingSort::TypeNameAscending);
+        assert!(!is_not_fast_sort);
+
         everything.query(true).unwrap();
-        let count = everything.get_result_count();
-        println!("Result count: {}", count);
-    }
+        let result_count = everything.get_result_count();
+        assert!(result_count > 0);
 
-    #[test]
-    fn test_get_result_paths_and_file_names() {
-        let everything = Everything::new();
-        everything.set_search("test");
-        everything.query(true).unwrap();
-        let count = everything.get_result_count();
-
-        for i in 0..count {
+        for i in 0..10 {
             let path = everything.get_result_path(i);
             let file_name = everything.get_result_file_name(i);
             println!("Path: {}, File name: {}", path, file_name);
