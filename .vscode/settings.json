@@ -1,5 +1,6 @@
 {
     "files.associations": {
         "*.rh": "c"
-    }
+    },
+    "rust-analyzer.linkedProjects": [".\\everything_sys\\Cargo.toml"]
 }
