@@ -390,6 +390,8 @@ mod tests {
         let is_not_fast_sort = everything.is_fast_sort(EverythingSort::TypeNameAscending);
         assert!(!is_not_fast_sort);
 
+        everything.set_max_results(10);
+
         everything.query(true).unwrap();
         let result_count = everything.get_result_count();
         assert!(result_count > 0);
@@ -415,15 +417,14 @@ mod tests {
 
         everything.set_search("test");
         everything.set_result_offset(100);
+        everything.set_max_results(10);
         everything.query(true).unwrap();
 
         let result_count = everything.get_result_count();
         assert!(result_count > 0);
 
-        let offset = everything.get_result_offset();
-
         let mut results: Vec<String> = vec![];
-        for i in offset..offset + 10 {
+        for i in 0..10 {
             let path = everything.get_result_path(i);
             let file_name = everything.get_result_file_name(i);
             results.push(path.clone());
