@@ -254,12 +254,58 @@ impl Everything {
         unsafe { Everything_IsFastSort(sort.into()) != 0 }
     }
 
+    pub fn is_result_file(&self, index: DWORD) -> bool {
+        unsafe { Everything_IsFileResult(index) != 0 }
+    }
+
+    pub fn is_result_folder(&self, index: DWORD) -> bool {
+        unsafe { Everything_IsFolderResult(index) != 0 }
+    }
+
+    pub fn is_result_volume(&self, index: DWORD) -> bool {
+        unsafe { Everything_IsVolumeResult(index) != 0 }
+    }
+
+    pub fn get_num_results(&self) -> DWORD {
+        unsafe { Everything_GetNumResults() }
+    }
+
+    pub fn get_total_results(&self) -> DWORD {
+        unsafe { Everything_GetTotResults() }
+    }
+
+    pub fn set_max_results(&self, max_results: DWORD) {
+        unsafe {
+            Everything_SetMax(max_results);
+        }
+    }
+
+    pub fn get_max_results(&self) -> DWORD {
+        unsafe { Everything_GetMax() }
+    }
+
+    pub fn set_result_offset(&self, offset_results: DWORD) {
+        unsafe {
+            Everything_SetOffset(offset_results);
+        }
+    }
+
+    pub fn get_result_offset(&self) -> DWORD {
+        unsafe { Everything_GetOffset() }
+    }
+
     pub fn query(&self, wait: bool) -> Result<(), EverythingError> {
         let result = unsafe { Everything_QueryW(wait as BOOL) };
         if result == 0 {
             Err(Everything::get_last_error())
         } else {
             Ok(())
+        }
+    }
+
+    pub fn reset(&self) {
+        unsafe {
+            Everything_Reset();
         }
     }
 
@@ -283,9 +329,23 @@ impl Everything {
         Everything::parse_string_ptr(path_buffer.as_ptr())
     }
 
+    pub fn path_iter(&self) -> impl Iterator<Item = String> + '_ {
+        let num_results = self.get_result_count();
+        let offset = self.get_result_offset();
+
+        (offset..num_results).map(|index| self.get_result_path(index))
+    }
+
     pub fn get_result_file_name(&self, index: u32) -> String {
         let result_ptr = unsafe { Everything_GetResultFileNameW(index) };
         Everything::parse_string_ptr(result_ptr)
+    }
+
+    pub fn name_iter(&self) -> impl Iterator<Item = String> + '_ {
+        let num_results = self.get_result_count();
+        let offset = self.get_result_offset();
+
+        (offset..num_results).map(|index| self.get_result_file_name(index))
     }
 
     pub fn new() -> Everything {
@@ -334,10 +394,55 @@ mod tests {
         let result_count = everything.get_result_count();
         assert!(result_count > 0);
 
+        let mut results: Vec<String> = vec![];
         for i in 0..10 {
             let path = everything.get_result_path(i);
             let file_name = everything.get_result_file_name(i);
+            results.push(path.clone());
             println!("Path: {}, File name: {}", path, file_name);
         }
+
+        let path_results = everything.path_iter().take(10);
+
+        for (path, path_result) in results.iter().zip(path_results) {
+            assert_eq!(path, &path_result);
+        }
+
+        everything.reset();
+
+        let result_count = everything.get_result_count();
+        assert_eq!(result_count, 0);
+
+        everything.set_search("test");
+        everything.set_result_offset(100);
+        everything.query(true).unwrap();
+
+        let result_count = everything.get_result_count();
+        assert!(result_count > 0);
+
+        let offset = everything.get_result_offset();
+
+        let mut results: Vec<String> = vec![];
+        for i in offset..offset + 10 {
+            let path = everything.get_result_path(i);
+            let file_name = everything.get_result_file_name(i);
+            results.push(path.clone());
+            println!("Path: {}, File name: {}", path, file_name);
+        }
+
+        let path_results = everything.path_iter().take(10);
+
+        for (path, path_result) in results.iter().zip(path_results) {
+            assert_eq!(path, &path_result);
+        }
+
+        everything.set_result_offset(100_000_000);
+        everything.query(true).unwrap();
+
+        let result_count = everything.get_result_count();
+        assert_eq!(result_count, 0);
+
+        let results = everything.path_iter().take(10);
+        assert_eq!(results.count(), 0);
     }
 }
