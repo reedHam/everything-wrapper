@@ -1,0 +1,1 @@
+#include "..\\Everything-SDK\\include\\Everything.h"

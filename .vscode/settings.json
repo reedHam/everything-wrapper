@@ -1,5 +1,7 @@
 {
-    "files.associations": {
-        "*.rh": "c"
-    }
+    "cSpell.words": [
+        "bitflags",
+        "FILETIME",
+        "napi"
+    ]
 }
