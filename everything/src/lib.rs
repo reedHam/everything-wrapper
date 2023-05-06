@@ -502,17 +502,44 @@ mod tests {
         let offset = EVERYTHING.get_result_offset();
         assert_eq!(offset, 10);
 
+        let flag = EverythingRequestFlags::FullPathAndFileName
+            | EverythingRequestFlags::DateCreated
+            | EverythingRequestFlags::DateModified
+            | EverythingRequestFlags::Size
+            | EverythingRequestFlags::Extension;
+        EVERYTHING.set_request_flags(flag);
+
+        let flags = EVERYTHING.get_request_flags();
+        assert_eq!(flags, flag);
+
+        EVERYTHING.set_sort(EverythingSort::DateCreatedDescending);
+
         EVERYTHING.query(true).unwrap();
 
         let num_results = EVERYTHING.get_result_count();
         assert_eq!(num_results, 10);
 
-        let full_path_results = EVERYTHING.full_path_iter().collect::<Vec<_>>();
+        let full_path_results: Vec<Result<String, EverythingError>> =
+            EVERYTHING.full_path_iter().collect();
 
+        assert_eq!(full_path_results.len(), 10);
+
+        let mut last_date_created = EVERYTHING.get_result_created_date(0).unwrap();
         for idx in 0..num_results {
-            let result = EVERYTHING.get_result_full_path(0).unwrap();
+            let result = EVERYTHING.get_result_full_path(idx).unwrap();
             let iter_result = full_path_results[idx as usize].as_ref().unwrap();
             assert_eq!(result, *iter_result);
+
+            let size = EVERYTHING.get_result_size(idx).unwrap();
+            assert!(size > 0);
+
+            let created_date = EVERYTHING.get_result_created_date(idx).unwrap();
+            assert!(created_date > 0);
+            assert!(created_date <= last_date_created);
+            last_date_created = created_date;
+
+            let modified_date = EVERYTHING.get_result_count_modified_date(idx).unwrap();
+            assert!(modified_date > 0);
         }
     }
 }
