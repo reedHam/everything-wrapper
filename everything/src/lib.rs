@@ -2,11 +2,12 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
+use bitflags::bitflags;
 use everything_sys::*;
 use widestring::{U16CStr, U16CString};
 
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd)]
 pub enum EverythingError {
     // no error detected
     Ok = EVERYTHING_OK,
@@ -174,23 +175,48 @@ impl TryFrom<u32> for EverythingSort {
     }
 }
 
+bitflags! {
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+    pub struct EverythingRequestFlags: u32 {
+        const FileName = EVERYTHING_REQUEST_FILE_NAME;
+        const Path = EVERYTHING_REQUEST_PATH;
+        const FullPathAndFileName = EVERYTHING_REQUEST_FULL_PATH_AND_FILE_NAME;
+        const Extension = EVERYTHING_REQUEST_EXTENSION;
+        const Size = EVERYTHING_REQUEST_SIZE;
+        const DateCreated = EVERYTHING_REQUEST_DATE_CREATED;
+        const DateModified = EVERYTHING_REQUEST_DATE_MODIFIED;
+        const DateAccessed = EVERYTHING_REQUEST_DATE_ACCESSED;
+        const Attributes = EVERYTHING_REQUEST_ATTRIBUTES;
+        const FileListFileName = EVERYTHING_REQUEST_FILE_LIST_FILE_NAME;
+        const RunCount = EVERYTHING_REQUEST_RUN_COUNT;
+        const DateRun = EVERYTHING_REQUEST_DATE_RUN;
+        const DateRecentlyChanged = EVERYTHING_REQUEST_DATE_RECENTLY_CHANGED;
+        const HighlightedFileName = EVERYTHING_REQUEST_HIGHLIGHTED_FILE_NAME;
+        const HighlightedPath = EVERYTHING_REQUEST_HIGHLIGHTED_PATH;
+        const HighlightedFullPathAndFileName = EVERYTHING_REQUEST_HIGHLIGHTED_FULL_PATH_AND_FILE_NAME;
+    }
+}
+
+trait U64Able {
+    fn as_u64(&self) -> u64;
+}
+
+impl U64Able for FILETIME {
+    fn as_u64(&self) -> u64 {
+        ((self.dwHighDateTime as u64) << 32) | (self.dwLowDateTime as u64)
+    }
+}
+
 pub struct Everything;
 
 impl Everything {
-    fn parse_string_ptr(ptr: *const u16) -> String {
+    fn parse_string_ptr(ptr: *const u16) -> Result<String, EverythingError> {
         if ptr.is_null() {
             let error_code = Everything::get_last_error();
             panic!("Error code: {:?}", error_code);
         }
-        unsafe {
-            if let Ok(string) = U16CStr::from_ptr_str(ptr).to_string() {
-                string
-            } else {
-                let lossy_string = U16CStr::from_ptr_str(ptr).to_string_lossy();
-                println!("Failed to convert path: {:?}", lossy_string);
-                lossy_string
-            }
-        }
+
+        Ok(unsafe { U16CStr::from_ptr_str(ptr).to_string_lossy() })
     }
 
     pub fn get_last_error() -> EverythingError {
@@ -230,7 +256,7 @@ impl Everything {
         }
     }
 
-    pub fn get_search(&self) -> String {
+    pub fn get_search(&self) -> Result<String, EverythingError> {
         let search_ptr = unsafe { Everything_GetSearchW() };
         Everything::parse_string_ptr(search_ptr)
     }
@@ -294,6 +320,17 @@ impl Everything {
         unsafe { Everything_GetOffset() }
     }
 
+    pub fn set_request_flags(&self, request_flags: EverythingRequestFlags) {
+        unsafe {
+            Everything_SetRequestFlags(request_flags.bits());
+        }
+    }
+
+    pub fn get_request_flags(&self) -> EverythingRequestFlags {
+        let request_flags = unsafe { Everything_GetRequestFlags() };
+        EverythingRequestFlags::from_bits_truncate(request_flags)
+    }
+
     pub fn query(&self, wait: bool) -> Result<(), EverythingError> {
         let result = unsafe { Everything_QueryW(wait as BOOL) };
         if result == 0 {
@@ -313,44 +350,118 @@ impl Everything {
         unsafe { Everything_GetNumResults() }
     }
 
-    pub fn get_result_path(&self, index: u32) -> String {
-        let result_ptr =
+    pub fn get_result_full_path(&self, index: u32) -> Result<String, EverythingError> {
+        let path_length =
             unsafe { Everything_GetResultFullPathNameW(index, std::ptr::null_mut(), 0) };
-        if result_ptr == 0 {
+        if path_length == 0 {
             let error_code = Everything::get_last_error();
-            panic!("Error code: {:?}", error_code);
+            return Err(error_code);
         }
 
-        let mut path_buffer = vec![0u16; result_ptr as usize];
+        // Length does not include null terminator
+        let mut path_buffer = Vec::with_capacity(path_length as usize);
         unsafe {
-            Everything_GetResultFullPathNameW(index, path_buffer.as_mut_ptr(), result_ptr);
+            let count_copied =
+                Everything_GetResultFullPathNameW(index, path_buffer.as_mut_ptr(), path_length);
+            Ok(
+                U16CStr::from_ptr(path_buffer.as_ptr(), count_copied as usize)
+                    .unwrap()
+                    .to_string_lossy(),
+            )
+        }
+    }
+
+    pub fn full_path_iter(&self) -> impl Iterator<Item = Result<String, EverythingError>> + '_ {
+        let num_results = self.get_result_count();
+        (0..num_results).map(|index| self.get_result_full_path(index))
+    }
+
+    pub fn get_result_file_name(&self, index: u32) -> Result<String, EverythingError> {
+        let result_ptr = unsafe { Everything_GetResultFileNameW(index) };
+
+        if result_ptr.is_null() {
+            let error_code = Everything::get_last_error();
+            return Err(error_code);
         }
 
-        Everything::parse_string_ptr(path_buffer.as_ptr())
-    }
-
-    pub fn path_iter(&self) -> impl Iterator<Item = String> + '_ {
-        let num_results = self.get_result_count();
-        let offset = self.get_result_offset();
-
-        (offset..num_results).map(|index| self.get_result_path(index))
-    }
-
-    pub fn get_result_file_name(&self, index: u32) -> String {
-        let result_ptr = unsafe { Everything_GetResultFileNameW(index) };
         Everything::parse_string_ptr(result_ptr)
     }
 
-    pub fn name_iter(&self) -> impl Iterator<Item = String> + '_ {
+    pub fn name_iter(&self) -> impl Iterator<Item = Result<String, EverythingError>> + '_ {
         let num_results = self.get_result_count();
-        let offset = self.get_result_offset();
+        (0..num_results).map(|index| self.get_result_file_name(index))
+    }
 
-        (offset..num_results).map(|index| self.get_result_file_name(index))
+    pub fn get_result_created_date(&self, index: u32) -> Result<u64, EverythingError> {
+        let mut file_time: FILETIME = FILETIME {
+            dwLowDateTime: 0,
+            dwHighDateTime: 0,
+        };
+
+        let success = unsafe { Everything_GetResultDateCreated(index, &mut file_time) };
+
+        if success == 0 {
+            let error_code = Everything::get_last_error();
+            return Err(error_code);
+        }
+
+        Ok(file_time.as_u64())
+    }
+
+    pub fn get_result_count_modified_date(&self, index: u32) -> Result<u64, EverythingError> {
+        let mut file_time: FILETIME = FILETIME {
+            dwLowDateTime: 0,
+            dwHighDateTime: 0,
+        };
+
+        let success = unsafe { Everything_GetResultDateModified(index, &mut file_time) };
+
+        if success == 0 {
+            let error_code = Everything::get_last_error();
+            return Err(error_code);
+        }
+
+        Ok(file_time.as_u64())
+    }
+
+    pub fn get_result_size(&self, index: u32) -> Result<u64, EverythingError> {
+        let mut size: LARGE_INTEGER = LARGE_INTEGER { QuadPart: 0 };
+
+        let success = unsafe { Everything_GetResultSize(index, &mut size) };
+
+        if success == 0 {
+            let error_code = Everything::get_last_error();
+            return Err(error_code);
+        }
+
+        Ok(unsafe { size.QuadPart as u64 })
+    }
+
+    pub fn get_result_extension(&self, index: u32) -> Result<String, EverythingError> {
+        let result_ptr = unsafe { Everything_GetResultExtensionW(index) };
+
+        if result_ptr.is_null() {
+            let error_code = Everything::get_last_error();
+            return Err(error_code);
+        }
+
+        Everything::parse_string_ptr(result_ptr)
     }
 
     pub fn new() -> Everything {
         Everything::wait_db_loaded();
         Everything
+    }
+
+    pub fn version() -> String {
+        unsafe {
+            let major = Everything_GetMajorVersion();
+            let minor = Everything_GetMinorVersion();
+            let revision = Everything_GetRevision();
+            let build = Everything_GetBuildNumber();
+
+            format!("{}.{}.{}.{}", major, minor, revision, build)
+        }
     }
 }
 
@@ -371,79 +482,37 @@ impl Default for Everything {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use lazy_static::lazy_static;
+
+    lazy_static! {
+        static ref EVERYTHING: Everything = Everything::new();
+    }
 
     #[test]
-    fn it_functions() {
-        let everything = Everything::new();
-
-        everything.set_search("test");
-        let search = everything.get_search();
+    fn searches() {
+        EVERYTHING.set_search("test");
+        let search = EVERYTHING.get_search().unwrap();
         assert_eq!(search, "test");
 
-        everything.set_sort(EverythingSort::DateCreatedDescending);
-        let sort = everything.get_sort().unwrap();
-        assert_eq!(sort, EverythingSort::DateCreatedDescending);
+        EVERYTHING.set_max_results(10);
+        let max_results = EVERYTHING.get_max_results();
+        assert_eq!(max_results, 10);
 
-        let is_fast_sort = everything.is_fast_sort(sort);
-        assert!(is_fast_sort);
+        EVERYTHING.set_result_offset(10);
+        let offset = EVERYTHING.get_result_offset();
+        assert_eq!(offset, 10);
 
-        let is_not_fast_sort = everything.is_fast_sort(EverythingSort::TypeNameAscending);
-        assert!(!is_not_fast_sort);
+        EVERYTHING.query(true).unwrap();
 
-        everything.set_max_results(10);
+        let num_results = EVERYTHING.get_result_count();
+        assert_eq!(num_results, 10);
 
-        everything.query(true).unwrap();
-        let result_count = everything.get_result_count();
-        assert!(result_count > 0);
+        let full_path_results = EVERYTHING.full_path_iter().collect::<Vec<_>>();
 
-        let mut results: Vec<String> = vec![];
-        for i in 0..10 {
-            let path = everything.get_result_path(i);
-            let file_name = everything.get_result_file_name(i);
-            results.push(path.clone());
-            println!("Path: {}, File name: {}", path, file_name);
+        for idx in 0..num_results {
+            let result = EVERYTHING.get_result_full_path(0).unwrap();
+            let iter_result = full_path_results[idx as usize].as_ref().unwrap();
+            assert_eq!(result, *iter_result);
         }
-
-        let path_results = everything.path_iter().take(10);
-
-        for (path, path_result) in results.iter().zip(path_results) {
-            assert_eq!(path, &path_result);
-        }
-
-        everything.reset();
-
-        let result_count = everything.get_result_count();
-        assert_eq!(result_count, 0);
-
-        everything.set_search("test");
-        everything.set_result_offset(100);
-        everything.set_max_results(10);
-        everything.query(true).unwrap();
-
-        let result_count = everything.get_result_count();
-        assert!(result_count > 0);
-
-        let mut results: Vec<String> = vec![];
-        for i in 0..10 {
-            let path = everything.get_result_path(i);
-            let file_name = everything.get_result_file_name(i);
-            results.push(path.clone());
-            println!("Path: {}, File name: {}", path, file_name);
-        }
-
-        let path_results = everything.path_iter().take(10);
-
-        for (path, path_result) in results.iter().zip(path_results) {
-            assert_eq!(path, &path_result);
-        }
-
-        everything.set_result_offset(100_000_000);
-        everything.query(true).unwrap();
-
-        let result_count = everything.get_result_count();
-        assert_eq!(result_count, 0);
-
-        let results = everything.path_iter().take(10);
-        assert_eq!(results.count(), 0);
     }
 }
