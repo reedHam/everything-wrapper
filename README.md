@@ -18,6 +18,37 @@
 - [Rust Bindgen](https://rust-lang.github.io/rust-bindgen/)
 - [Rust FFI](https://doc.rust-lang.org/nomicon/ffi.html)
 
+### Usage
+```rust
+use everything::{Everything, EverythingSort, EverythingRequestFlags};
+
+let everything = Everything::new();
+everything.set_search("test");
+
+everything.set_max_results(10);
+
+everything.set_result_offset(10);
+
+everything.set_request_flags(
+    EverythingRequestFlags::FullPathAndFileName
+    | EverythingRequestFlags::DateCreated
+    | EverythingRequestFlags::DateModified
+    | EverythingRequestFlags::Size
+    | EverythingRequestFlags::Extension
+);
+
+everything.set_sort(EverythingSort::DateCreatedDescending);
+
+everything.query().unwrap();
+
+let num_results = everything.get_result_count();
+
+for path in everything.full_path_iter().flatten() {
+    println!("{}", path);
+}
+
+```
+
 ## Building
 After creating the target directory, you must copy the dll file to the target directory. 
 The dll file can be found in the Everything SDK installation directory.  
@@ -29,3 +60,12 @@ Currently the build scripts have a hardcoded path to the dll file that works on 
 This is a simple nodejs ffi wrapper around the Everything SDK.
 This is a work in progress and is not ready for use and should only be used as an example.
 Currently it dose not parse file paths very efficiently.
+
+
+## TODO
+- [ ] Add more tests
+- [ ] Add more documentation
+- [ ] Add more examples
+- [ ] Async queries
+- [ ] Automated build process
+- [ ] Publish to crates.io

@@ -331,8 +331,8 @@ impl Everything {
         EverythingRequestFlags::from_bits_truncate(request_flags)
     }
 
-    pub fn query(&self, wait: bool) -> Result<(), EverythingError> {
-        let result = unsafe { Everything_QueryW(wait as BOOL) };
+    pub fn query(&self) -> Result<(), EverythingError> {
+        let result = unsafe { Everything_QueryW(1) };
         if result == 0 {
             Err(Everything::get_last_error())
         } else {
@@ -514,7 +514,7 @@ mod tests {
 
         EVERYTHING.set_sort(EverythingSort::DateCreatedDescending);
 
-        EVERYTHING.query(true).unwrap();
+        EVERYTHING.query().unwrap();
 
         let num_results = EVERYTHING.get_result_count();
         assert_eq!(num_results, 10);
