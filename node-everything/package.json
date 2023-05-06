@@ -1,6 +1,21 @@
 {
   "name": "node-everything",
   "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT"
+  "main": "dist/index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@tsconfig/node20": "^1.0.0",
+    "@tsconfig/recommended": "^1.0.2",
+    "ffi-napi": "^4.0.3",
+    "iconv-lite": "^0.6.3",
+    "ref-array-napi": "^1.2.2",
+    "ref-napi": "^3.0.3",
+    "ref-wchar-napi": "^1.0.3",
+    "typescript": "^5.0.4"
+  },
+  "devDependencies": {
+    "@types/ffi-napi": "^4.0.7",
+    "@types/ref-array-di": "^1.2.5",
+    "@types/ref-napi": "^3.0.7"
+  }
 }

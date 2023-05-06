@@ -1,0 +1,301 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\yarn\bin\yarn.js add @types/ref-wchar-napi
+
+PATH: 
+  C:\Users\Ganfar\miniconda3;C:\Users\Ganfar\miniconda3\Library\mingw-w64\bin;C:\Users\Ganfar\miniconda3\Library\usr\bin;C:\Users\Ganfar\miniconda3\Library\bin;C:\Users\Ganfar\miniconda3\Scripts;C:\Users\Ganfar\miniconda3\bin;C:\Users\Ganfar\miniconda3\condabin;C:\Program Files\Microsoft MPI\Bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\libnvvp;C:\Program Files\Alacritty;C:\Program Files\Eclipse Foundation\jdk-8.0.302.8-hotspot\bin;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Program Files\Common Files\Oracle\Java\javapath;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.3\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.3\libnvvp;C:\Program Files (x86)\Razer Chroma SDK\bin;C:\Program Files\Razer Chroma SDK\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.2\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.2\libnvvp;C:\Program Files (x86)\Razer\ChromaBroadcast\bin;C:\Program Files\Razer\ChromaBroadcast\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\OpenSSH;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\WINDOWS\system32\config\systemprofile\AppData\Local\Microsoft\WindowsApps;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.2\extras\CUPTI\lib64;C:\Program F;C:\Program Files\Git\bin;C:\Program Files\LLVM\bin;C:\Program Files\dotnet;C:\ProgramData\chocolatey\bin;C:\Program Files\Go\bin;C:\Program Files (x86)\dotnet;C:\Program Files\CMake\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\OpenSSH;C:\Users\Ganfar\AppData\Roaming\nvm;C:\Program Files\nodejs;C:\Strawberry\c\bin;C:\Strawberry\perl\site\bin;C:\Strawberry\perl\bin;C:\Program Files (x86)\Microsoft SQL Server\160\Tools\Binn;C:\Program Files\Microsoft SQL Server\160\Tools\Binn;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn;C:\Program Files\Microsoft SQL Server\160\DTS\Binn;C:\Program Files (x86)\Microsoft SQL Server\160\DTS\Binn;C:\Program Files\Azure Data Studio\bin;C:\Program Files\NVIDIA Corporation\Nsight Compute 2022.2.0;C:\Program Files\PowerShell\7;C:\Program Files\Docker\Docker\resources\bin;C:\Users\Ganfar\AppData\Local\Programs\Python\Python310\Scripts;C:\Users\Ganfar\AppData\Local\Programs\Python\Python310;C:\Users\Ganfar\.cargo\bin;C:\Users\Ganfar\AppData\Local\Microsoft\WindowsApps;C:\Users\Ganfar\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\Ganfar\.dotnet\tools;E:\programs\ffmpeg-2021-06-16-git-604924a069-full_build\bin;E:\programs\gifsicle-1.92;E:\programs\neo4j-community-4.3.1\bin;C:\Python27\python.exe;C:\Users\Ganfar\AppData\Local\GitHubDesktop\bin;C:\Users\Ganfar\AppData\Roaming\nvm;C:\Program Files\Xplorer;C:\Program Files\Git\bin;C:\Users\Ganfar\go\bin;C:\github\everything-rust-wrapper\Everything-SDK\dll;C:\Users\Ganfar\miniconda3\Scripts;E:\programs\realesrgan-ncnn-vulkan-v0.2.0-windows;C:\Users\Ganfar\SurrealDB;C:\Users\Ganfar\.deno\bin;C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2022.2.2\bin;.;C:\Users\Ganfar\AppData\Local\Microsoft\WindowsApps;C:\Users\Ganfar\miniconda3\envs\twichrec\Scripts\wfuzz.exe;C:\Users\Ganfar\AppData\Roaming\npm;C:\Users\Ganfar\AppData\Roaming\nvm;C:\Program Files\nodejs;C:\Users\Ganfar\AppData\Local\Programs\oh-my-posh\bin;C:\Users\Ganfar\AppData\Local\.wasm-pack\.wasm-bindgen-cargo-install-0.2.83\bin;E:\programs\bin;C:\Program Files\Azure Data Studio\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\libnvvp;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\bin;C:\Users\Ganfar\.dotnet\tools;C:\Users\Ganfar\AppData\Local\Microsoft\WinGet\Links;.
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  20.0.0
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: https://registry.yarnpkg.com/@types%2fref-wchar-napi: Not found
+      at params.callback [as _callback] (C:\Users\Ganfar\AppData\Roaming\nvm\v20.0.0\node_modules\yarn\lib\cli.js:66145:18)
+      at self.callback (C:\Users\Ganfar\AppData\Roaming\nvm\v20.0.0\node_modules\yarn\lib\cli.js:140890:22)
+      at Request.emit (node:events:511:28)
+      at Request.<anonymous> (C:\Users\Ganfar\AppData\Roaming\nvm\v20.0.0\node_modules\yarn\lib\cli.js:141862:10)
+      at Request.emit (node:events:511:28)
+      at IncomingMessage.<anonymous> (C:\Users\Ganfar\AppData\Roaming\nvm\v20.0.0\node_modules\yarn\lib\cli.js:141784:12)
+      at Object.onceWrapper (node:events:625:28)
+      at IncomingMessage.emit (node:events:523:35)
+      at endReadableNT (node:internal/streams/readable:1367:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:82:21)
+
+npm manifest: 
+  {
+    "name": "node-everything",
+    "version": "1.0.0",
+    "main": "index.js",
+    "license": "MIT",
+    "dependencies": {
+      "@tsconfig/node20": "^1.0.0",
+      "@tsconfig/recommended": "^1.0.2",
+      "ffi-napi": "^4.0.3",
+      "iconv-lite": "^0.6.3",
+      "ref-array-napi": "^1.2.2",
+      "ref-napi": "^3.0.3",
+      "ref-wchar-napi": "^1.0.3",
+      "typescript": "^5.0.4"
+    },
+    "devDependencies": {
+      "@types/ffi-napi": "^4.0.7",
+      "@types/ref-array-di": "^1.2.5",
+      "@types/ref-napi": "^3.0.7"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  # THIS IS AN AUTOGENERATED FILE. DO NOT EDIT THIS FILE DIRECTLY.
+  # yarn lockfile v1
+  
+  
+  "@tsconfig/node20@^1.0.0":
+    version "1.0.0"
+    resolved "https://registry.npmjs.org/@tsconfig/node20/-/node20-1.0.0.tgz"
+    integrity sha512-AwbXtpWEaRUjbGVwdlusNqwet+jeSk3Nnqf/8+77WJ1/9d6xnqs2QpE9Pdwv8RCoXxtMedWEtlmWY+/irBPcUw==
+  
+  "@tsconfig/recommended@^1.0.2":
+    version "1.0.2"
+    resolved "https://registry.npmjs.org/@tsconfig/recommended/-/recommended-1.0.2.tgz"
+    integrity sha512-dbHBtbWBOjq0/otpopAE02NT2Cm05Qe2JsEKeCf/wjSYbI2hz8nCqnpnOJWHATgjDz4fd3dchs3Wy1gQGjfN6w==
+  
+  "@types/ffi-napi@^4.0.7":
+    version "4.0.7"
+    resolved "https://registry.npmjs.org/@types/ffi-napi/-/ffi-napi-4.0.7.tgz"
+    integrity sha512-2CvLfgxCUUSj7qVab6/uFLyVpgVd2gEV4H/TQEHHn6kZTV8iTesz9uo0bckhwzsh71atutOv8P3JmvRX2ZvpZg==
+    dependencies:
+      "@types/node" "*"
+      "@types/ref-napi" "*"
+      "@types/ref-struct-di" "*"
+  
+  "@types/node@*":
+    version "20.1.0"
+    resolved "https://registry.npmjs.org/@types/node/-/node-20.1.0.tgz"
+    integrity sha512-O+z53uwx64xY7D6roOi4+jApDGFg0qn6WHcxe5QeqjMaTezBO/mxdfFXIVAVVyNWKx84OmPB3L8kbVYOTeN34A==
+  
+  "@types/ref-array-di@^1.2.5":
+    version "1.2.5"
+    resolved "https://registry.npmjs.org/@types/ref-array-di/-/ref-array-di-1.2.5.tgz"
+    integrity sha512-dA/Himb7ca/Tf5vqLOhi7LewAAoOXghlocw7gAqvNrmLybAtu+w2BLzEsbFWAtx5ElNzMEHDaRybueYViFROjQ==
+    dependencies:
+      "@types/ref-napi" "*"
+  
+  "@types/ref-napi@*", "@types/ref-napi@^3.0.7":
+    version "3.0.7"
+    resolved "https://registry.npmjs.org/@types/ref-napi/-/ref-napi-3.0.7.tgz"
+    integrity sha512-CzPwr36VkezSpaJGdQX/UrczMSDsDgsWQQFEfQkS799Ft7n/s183a53lsql7RwVq+Ik4yLEgI84pRnLC0XXRlA==
+    dependencies:
+      "@types/node" "*"
+  
+  "@types/ref-struct-di@*":
+    version "1.1.9"
+    resolved "https://registry.npmjs.org/@types/ref-struct-di/-/ref-struct-di-1.1.9.tgz"
+    integrity sha512-B1FsB1BhG1VLx0+IqBaAPXEPH0wCOb+Glaaw/i+nRUwDKFtSqWOziGnTRw05RyrBbrDsMiM0tVWmaujrs016Sw==
+    dependencies:
+      "@types/ref-napi" "*"
+  
+  array-index@1:
+    version "1.0.0"
+    resolved "https://registry.yarnpkg.com/array-index/-/array-index-1.0.0.tgz#ec56a749ee103e4e08c790b9c353df16055b97f9"
+    integrity sha512-jesyNbBkLQgGZMSwA1FanaFjalb1mZUGxGeUEkSDidzgrbjBGhvizJkaItdhkt8eIHFOJC7nDsrXk+BaehTdRw==
+    dependencies:
+      debug "^2.2.0"
+      es6-symbol "^3.0.2"
+  
+  d@1, d@^1.0.1:
+    version "1.0.1"
+    resolved "https://registry.yarnpkg.com/d/-/d-1.0.1.tgz#8698095372d58dbee346ffd0c7093f99f8f9eb5a"
+    integrity sha512-m62ShEObQ39CfralilEQRjH6oAMtNCV1xJyEx5LpRYUVN+EviphDgUc/F3hnYbADmkiNs67Y+3ylmlG7Lnu+FA==
+    dependencies:
+      es5-ext "^0.10.50"
+      type "^1.0.1"
+  
+  debug@2, debug@^2.2.0:
+    version "2.6.9"
+    resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
+    integrity sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==
+    dependencies:
+      ms "2.0.0"
+  
+  debug@^3.1.0:
+    version "3.2.7"
+    resolved "https://registry.npmjs.org/debug/-/debug-3.2.7.tgz"
+    integrity sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==
+    dependencies:
+      ms "^2.1.1"
+  
+  debug@^4.1.1:
+    version "4.3.4"
+    resolved "https://registry.npmjs.org/debug/-/debug-4.3.4.tgz"
+    integrity sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==
+    dependencies:
+      ms "2.1.2"
+  
+  es5-ext@^0.10.35, es5-ext@^0.10.50:
+    version "0.10.62"
+    resolved "https://registry.yarnpkg.com/es5-ext/-/es5-ext-0.10.62.tgz#5e6adc19a6da524bf3d1e02bbc8960e5eb49a9a5"
+    integrity sha512-BHLqn0klhEpnOKSrzn/Xsz2UIW8j+cGmo9JLzr8BiUapV8hPL9+FliFqjwr9ngW7jWdnxv6eO+/LqyhJVqgrjA==
+    dependencies:
+      es6-iterator "^2.0.3"
+      es6-symbol "^3.1.3"
+      next-tick "^1.1.0"
+  
+  es6-iterator@^2.0.3:
+    version "2.0.3"
+    resolved "https://registry.yarnpkg.com/es6-iterator/-/es6-iterator-2.0.3.tgz#a7de889141a05a94b0854403b2d0a0fbfa98f3b7"
+    integrity sha512-zw4SRzoUkd+cl+ZoE15A9o1oQd920Bb0iOJMQkQhl3jNc03YqVjAhG7scf9C5KWRU/R13Orf588uCC6525o02g==
+    dependencies:
+      d "1"
+      es5-ext "^0.10.35"
+      es6-symbol "^3.1.1"
+  
+  es6-symbol@^3.0.2, es6-symbol@^3.1.1, es6-symbol@^3.1.3:
+    version "3.1.3"
+    resolved "https://registry.yarnpkg.com/es6-symbol/-/es6-symbol-3.1.3.tgz#bad5d3c1bcdac28269f4cb331e431c78ac705d18"
+    integrity sha512-NJ6Yn3FuDinBaBRWl/q5X/s4koRHBrgKAu+yGI6JCBeiu3qrcbJhwT2GeR/EXVfylRk8dpQVJoLEFhK+Mu31NA==
+    dependencies:
+      d "^1.0.1"
+      ext "^1.1.2"
+  
+  ext@^1.1.2:
+    version "1.7.0"
+    resolved "https://registry.yarnpkg.com/ext/-/ext-1.7.0.tgz#0ea4383c0103d60e70be99e9a7f11027a33c4f5f"
+    integrity sha512-6hxeJYaL110a9b5TEJSj0gojyHQAmA2ch5Os+ySCiA1QGdS697XWY1pzsrSjqA9LDEEgdB/KypIlR59RcLuHYw==
+    dependencies:
+      type "^2.7.2"
+  
+  ffi-napi@^4.0.3:
+    version "4.0.3"
+    resolved "https://registry.npmjs.org/ffi-napi/-/ffi-napi-4.0.3.tgz"
+    integrity sha512-PMdLCIvDY9mS32RxZ0XGb95sonPRal8aqRhLbeEtWKZTe2A87qRFG9HjOhvG8EX2UmQw5XNRMIOT+1MYlWmdeg==
+    dependencies:
+      debug "^4.1.1"
+      get-uv-event-loop-napi-h "^1.0.5"
+      node-addon-api "^3.0.0"
+      node-gyp-build "^4.2.1"
+      ref-napi "^2.0.1 || ^3.0.2"
+      ref-struct-di "^1.1.0"
+  
+  get-symbol-from-current-process-h@^1.0.1, get-symbol-from-current-process-h@^1.0.2:
+    version "1.0.2"
+    resolved "https://registry.npmjs.org/get-symbol-from-current-process-h/-/get-symbol-from-current-process-h-1.0.2.tgz"
+    integrity sha512-syloC6fsCt62ELLrr1VKBM1ggOpMdetX9hTrdW77UQdcApPHLmf7CI7OKcN1c9kYuNxKcDe4iJ4FY9sX3aw2xw==
+  
+  get-uv-event-loop-napi-h@^1.0.5:
+    version "1.0.6"
+    resolved "https://registry.npmjs.org/get-uv-event-loop-napi-h/-/get-uv-event-loop-napi-h-1.0.6.tgz"
+    integrity sha512-t5c9VNR84nRoF+eLiz6wFrEp1SE2Acg0wS+Ysa2zF0eROes+LzOfuTaVHxGy8AbS8rq7FHEJzjnCZo1BupwdJg==
+    dependencies:
+      get-symbol-from-current-process-h "^1.0.1"
+  
+  iconv-lite@^0.6.3:
+    version "0.6.3"
+    resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.6.3.tgz#a52f80bf38da1952eb5c681790719871a1a72501"
+    integrity sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==
+    dependencies:
+      safer-buffer ">= 2.1.2 < 3.0.0"
+  
+  iconv@2:
+    version "2.3.5"
+    resolved "https://registry.yarnpkg.com/iconv/-/iconv-2.3.5.tgz#5f9b9612f5b15313286748d030c6ff29efdefa33"
+    integrity sha512-U5ajDbtDfadp7pvUMC0F2XbkP5vQn9Xrwa6UptePl+cK8EILxapAt3sXers9B3Gxagk+zVjL2ELKuzQvyqOwug==
+    dependencies:
+      nan "^2.14.0"
+      safer-buffer "^2.1.2"
+  
+  ms@2.0.0:
+    version "2.0.0"
+    resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
+    integrity sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==
+  
+  ms@2.1.2:
+    version "2.1.2"
+    resolved "https://registry.npmjs.org/ms/-/ms-2.1.2.tgz"
+    integrity sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
+  
+  ms@^2.1.1:
+    version "2.1.3"
+    resolved "https://registry.npmjs.org/ms/-/ms-2.1.3.tgz"
+    integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
+  
+  nan@^2.14.0:
+    version "2.17.0"
+    resolved "https://registry.yarnpkg.com/nan/-/nan-2.17.0.tgz#c0150a2368a182f033e9aa5195ec76ea41a199cb"
+    integrity sha512-2ZTgtl0nJsO0KQCjEpxcIr5D+Yv90plTitZt9JBfQvVJDS5seMl3FOvsh3+9CoYWXf/1l5OaZzzF6nDm4cagaQ==
+  
+  next-tick@^1.1.0:
+    version "1.1.0"
+    resolved "https://registry.yarnpkg.com/next-tick/-/next-tick-1.1.0.tgz#1836ee30ad56d67ef281b22bd199f709449b35eb"
+    integrity sha512-CXdUiJembsNjuToQvxayPZF9Vqht7hewsvy2sOWafLvi2awflj9mOC6bHIg50orX8IJvWKY9wYQ/zB2kogPslQ==
+  
+  node-addon-api@^3.0.0:
+    version "3.2.1"
+    resolved "https://registry.npmjs.org/node-addon-api/-/node-addon-api-3.2.1.tgz"
+    integrity sha512-mmcei9JghVNDYydghQmeDX8KoAm0FAiYyIcUt/N4nhyAipB17pllZQDOJD2fotxABnt4Mdz+dKTO7eftLg4d0A==
+  
+  node-gyp-build@^4.2.1:
+    version "4.6.0"
+    resolved "https://registry.npmjs.org/node-gyp-build/-/node-gyp-build-4.6.0.tgz"
+    integrity sha512-NTZVKn9IylLwUzaKjkas1e4u2DLNcV4rdYagA4PWdPwW87Bi7z+BznyKSRwS/761tV/lzCGXplWsiaMjLqP2zQ==
+  
+  ref-array-napi@^1.2.2:
+    version "1.2.2"
+    resolved "https://registry.yarnpkg.com/ref-array-napi/-/ref-array-napi-1.2.2.tgz#8b172b375aa04441860973c262ac8a557e3d368e"
+    integrity sha512-EGQzUQpyqD/hN9eIn3uF68UPBmwJXdWkumHCmvK3ncjw128bkjd8TbJ51ur+2PZ4UrfCOQCcPQkuWZ6mNHch9A==
+    dependencies:
+      array-index "1"
+      debug "2"
+      ref-napi "^3.0.1"
+  
+  "ref-napi@^2.0.1 || ^3.0.2", ref-napi@^3.0.1, ref-napi@^3.0.3:
+    version "3.0.3"
+    resolved "https://registry.npmjs.org/ref-napi/-/ref-napi-3.0.3.tgz"
+    integrity sha512-LiMq/XDGcgodTYOMppikEtJelWsKQERbLQsYm0IOOnzhwE9xYZC7x8txNnFC9wJNOkPferQI4vD4ZkC0mDyrOA==
+    dependencies:
+      debug "^4.1.1"
+      get-symbol-from-current-process-h "^1.0.2"
+      node-addon-api "^3.0.0"
+      node-gyp-build "^4.2.1"
+  
+  ref-struct-di@^1.1.0:
+    version "1.1.1"
+    resolved "https://registry.npmjs.org/ref-struct-di/-/ref-struct-di-1.1.1.tgz"
+    integrity sha512-2Xyn/0Qgz89VT+++WP0sTosdm9oeowLP23wRJYhG4BFdMUrLj3jhwHZNEytYNYgtPKLNTP3KJX4HEgBvM1/Y2g==
+    dependencies:
+      debug "^3.1.0"
+  
+  ref-wchar-napi@^1.0.3:
+    version "1.0.3"
+    resolved "https://registry.yarnpkg.com/ref-wchar-napi/-/ref-wchar-napi-1.0.3.tgz#7b1b05a9d610b26b84d2802e38c519e744ff2794"
+    integrity sha512-rx8b0pVfz/jShQPS288Rox/A0DQkcw6La+4YC3FgV4F9KUQ/VTxFrVpKOKGuj5yBvVoHdejbX6/BlHSkKHj9Lg==
+    dependencies:
+      iconv "2"
+      ref-napi "^3.0.1"
+  
+  "safer-buffer@>= 2.1.2 < 3.0.0", safer-buffer@^2.1.2:
+    version "2.1.2"
+    resolved "https://registry.yarnpkg.com/safer-buffer/-/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
+    integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
+  
+  type@^1.0.1:
+    version "1.2.0"
+    resolved "https://registry.yarnpkg.com/type/-/type-1.2.0.tgz#848dd7698dafa3e54a6c479e759c4bc3f18847a0"
+    integrity sha512-+5nt5AAniqsCnu2cEQQdpzCAh33kVx8n0VoFidKpB1dVVLAN/F+bgVOqOJqOnEnrhp222clB5p3vUlD+1QAnfg==
+  
+  type@^2.7.2:
+    version "2.7.2"
+    resolved "https://registry.yarnpkg.com/type/-/type-2.7.2.tgz#2376a15a3a28b1efa0f5350dcf72d24df6ef98d0"
+    integrity sha512-dzlvlNlt6AXU7EBSfpAscydQ7gXB+pPGsPnfJnZpiNJBDj7IaJzQlBZYGdEi4R9HmPdBv2XmWJ6YUtoTa7lmCw==
+  
+  typescript@^5.0.4:
+    version "5.0.4"
+    resolved "https://registry.npmjs.org/typescript/-/typescript-5.0.4.tgz"
+    integrity sha512-cW9T5W9xY37cc+jfEnaUvX91foxtHkza3Nw3wkoF4sSlKn0MONdkdEndig/qPBWXNkmplh3NzayQzCiHM4/hqw==

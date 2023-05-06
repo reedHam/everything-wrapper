@@ -10,9 +10,10 @@
     "outDir": "dist",
     "sourceMap": true,
     "noUncheckedIndexedAccess": true,
+    "declaration": true,
   },
   "include": [
-    "src/**/*.ts"
+    "lib/**/*.ts"
   ],
   "exclude": [
     "node_modules"
