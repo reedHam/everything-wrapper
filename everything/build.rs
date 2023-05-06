@@ -17,9 +17,11 @@ fn main() {
         .join("Everything64.dll");
 
     if !target_path.exists() {
-        fs::copy(&dll_path, &target_path).expect(&format!(
-            "Failed to copy Everything.dll from {:?} to {:?}",
-            dll_path, target_path
-        ));
+        fs::copy(dll_path, &target_path).unwrap_or_else(|_| {
+            panic!(
+                "Failed to copy Everything.dll from {:?} to {:?}",
+                dll_path, target_path
+            )
+        });
     }
 }
