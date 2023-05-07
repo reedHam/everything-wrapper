@@ -19,7 +19,7 @@ include = ["src/**/*.rs", "Cargo.toml", "Cargo.lock", "Everything64.dll"]
 
 [dependencies]
 bitflags = "2.2.1"
-everything-sys-bindgen = { path = "../everything-sys-bindgen" }
+everything-sys-bindgen = "0.1.0"
 widestring = "*"
 
 
