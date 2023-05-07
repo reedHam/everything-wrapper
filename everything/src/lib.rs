@@ -6,30 +6,34 @@
 //!
 //! # Example
 //! ```rust
-//! use everything::{Everything, EverythingRequestFlags, EverythingSort};
+//! use everything::{Everything, EverythingRequestFlags, EverythingSort, EverythingError};
 //!
-//! let mut everything = Everything::new();
+//! fn main() -> Result<(), EverythingError> {
+//!    let mut everything = Everything::new();
 //!
-//! everything.set_search("test");
+//!    everything.set_search("test");
 //!
-//! everything.set_request_flags(
-//!     EverythingRequestFlags::FullPathAndFileName
-//!     | EverythingRequestFlags::Size
-//!     | EverythingRequestFlags::DateCreated
-//! );
+//!    everything.set_request_flags(
+//!        EverythingRequestFlags::FullPathAndFileName
+//!        | EverythingRequestFlags::Size
+//!        | EverythingRequestFlags::DateCreated
+//!    );
 //!
-//! everything.set_sort(EverythingSort::DateCreatedDescending);
+//!    everything.set_sort(EverythingSort::DateCreatedDescending);
 //!
-//! everything.query().unwrap();
+//!    everything.query()?;
 //!
-//! let num_results = everything.get_num_results();
+//!    let num_results = everything.get_num_results();
 //!
-//! assert!(num_results > 0);
+//!    assert!(num_results > 0);
 //!
-//! for (i, path) in everything.full_path_iter().flatten().enumerate() {
-//!     let size = everything.get_result_size(i as u32).unwrap();
-//!     let date_created = everything.get_result_created_date(i as u32).unwrap();
-//!     println!("{}: {} {} {}", i, path, size, date_created);
+//!    for (i, path) in everything.full_path_iter().flatten().enumerate() {
+//!        let size = everything.get_result_size(i as u32)?;
+//!        let date_created = everything.get_result_created_date(i as u32)?;
+//!        println!("{}: {} {} {}", i, path, size, date_created);
+//!    }
+//!
+//!    Ok(())
 //! }
 //! ```
 

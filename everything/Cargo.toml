@@ -2,7 +2,28 @@
 name = "everything"
 version = "0.1.0"
 edition = "2021"
+authors = ["Reed Hambrook", "reed.hambrook@gmail.com"]
+description = "Ergonomic wrapper around the everything_sys for the Everything SDK"
+readme = "README.md"
+repository = "https://github.com/reedHam/everything-wrapper"
+homepage = "https://github.com/reedHam/everything-wrapper"
+license = "MIT OR Apache-2.0"
+keywords = [
+    "everything",
+    "search",
+    "sdk",
+    "wrapper",
+    "windows",
+    "file",
+    "file system",
+    "index",
+    "database",
+]
+categories = ['api-bindings', 'database', "os::windows-apis"]
+
+
 include = ["src/**/*.rs", "Cargo.toml", "Cargo.lock", "Everything64.dll"]
+
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
