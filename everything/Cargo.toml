@@ -3,7 +3,7 @@ name = "everything"
 version = "0.1.0"
 edition = "2021"
 authors = ["Reed Hambrook", "reed.hambrook@gmail.com"]
-description = "Ergonomic wrapper around the everything_sys for the Everything SDK"
+description = "Ergonomic wrapper around everything-sys-bindgen for the Everything SDK"
 readme = "README.md"
 repository = "https://github.com/reedHam/everything-wrapper"
 homepage = "https://github.com/reedHam/everything-wrapper"
@@ -19,7 +19,7 @@ include = ["src/**/*.rs", "Cargo.toml", "Cargo.lock", "Everything64.dll"]
 
 [dependencies]
 bitflags = "2.2.1"
-everything-sys-bindgen = { path = "../everything_sys" }
+everything-sys-bindgen = { path = "../everything-sys-bindgen" }
 widestring = "*"
 
 

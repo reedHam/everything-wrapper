@@ -1,4 +1,4 @@
-# everything_sys
+# everything-sys-bindgen
 Rust bindings to the Everything SDK C API using bindgen.
 
 ## References

@@ -1,6 +1,6 @@
 //! # Everything  
-//! This crate provides a safe wrapper around the `everything_sys`.  
-//! `everything_sys` is a rust binding to the [Everything SDK](https://www.voidtools.com/support/everything/sdk/) that allow IPC communication to the everything service.  
+//! This crate provides a safe wrapper around the `everything-sys-bindgen`.  
+//! `everything-sys-bindgen` is a rust binding to the [Everything SDK](https://www.voidtools.com/support/everything/sdk/) that allow IPC communication to the everything service.  
 //! The Everything service indexes files on windows and provides a expressive query syntax to search for files.  
 //! See the [Everything SDK documentation](https://www.voidtools.com/support/everything/sdk/) for more information.  
 //!
@@ -42,7 +42,7 @@
 #![allow(non_snake_case)]
 
 use bitflags::bitflags;
-use everything_sys::*;
+use everything_sys_bindgen::*;
 use widestring::{U16CStr, U16CString};
 
 /// Represents errors that can occur when using the Everything SDK and that will be returned by Everything.get_last_error().   

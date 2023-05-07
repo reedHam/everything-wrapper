@@ -10,8 +10,8 @@
 - Uses rust bindgen to generate bindings to the Everything SDK C API
 
 ### Rust modules
-- `everything-sys` - Rust bindings to the Everything SDK C API
-- `everything` - A more ergonomic wrapper around the everything-sys
+- `everything-sys-bindgen` - Rust bindings to the Everything SDK C API
+- `everything` - A more ergonomic wrapper around the everything-sys-bindgen
 
 ## Documentation
 - [Everything SDK](https://www.voidtools.com/support/everything/sdk/)
@@ -49,8 +49,8 @@ for path in everything.full_path_iter().flatten() {
 
 ```
 
-For more examples see the test modules in the everything-sys and everything crates.
-- https://github.com/reedHam/everything-wrapper/blob/27c3f93f6f30bce0a68e61816c428a0d77fb8348/everything_sys/src/lib.rs#L8
+For more examples see the test modules in the everything-sys-bindgen and everything crates.
+- https://github.com/reedHam/everything-wrapper/blob/27c3f93f6f30bce0a68e61816c428a0d77fb8348/everything-sys-bindgen/src/lib.rs#L8
 - https://github.com/reedHam/everything-wrapper/blob/27c3f93f6f30bce0a68e61816c428a0d77fb8348/everything/src/lib.rs#L492
 
 
