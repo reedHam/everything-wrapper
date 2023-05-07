@@ -8,7 +8,7 @@ readme = "README.md"
 repository = "https://github.com/reedHam/everything-wrapper"
 homepage = "https://github.com/reedHam/everything-wrapper"
 license = "MIT OR Apache-2.0"
-keywords = ["everything", "sdk", "bindings", "ffi", "c", "windows"]
+keywords = ["everything", "sdk", "bindings", "ffi", "windows"]
 categories = ["external-ffi-bindings", "os::windows-apis"]
 
 include = [
