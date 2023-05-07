@@ -68,9 +68,9 @@ Currently it dose not parse file paths very efficiently.
 
 
 ## TODO
-- [ * ] Add more tests
-- [ * ] Add more documentation
-- [ * ] Add more examples
-- [  ] Async queries
-- [  ] Automated build process
-- [  ] Publish to crates.io
+- [x] Add more tests
+- [x] Add more documentation
+- [x] Add more examples
+- [ ] Async queries
+- [ ] Automated build process
+- [ ] Publish to crates.io
