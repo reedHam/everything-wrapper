@@ -1,8 +1,8 @@
-//! # Everything
-//! This crate provides a safe wrapper around the `everything_sys`.
-//! `everything_sys` is a rust binding to the [Everything SDK](https://www.voidtools.com/support/everything/sdk/) that allow IPC communication to the everything service.
-//! The Everything service indexes files on windows and provides a expressive query syntax to search for files.
-//! See the [Everything SDK documentation](https://www.voidtools.com/support/everything/sdk/) for more information.
+//! # Everything  
+//! This crate provides a safe wrapper around the `everything_sys`.  
+//! `everything_sys` is a rust binding to the [Everything SDK](https://www.voidtools.com/support/everything/sdk/) that allow IPC communication to the everything service.  
+//! The Everything service indexes files on windows and provides a expressive query syntax to search for files.  
+//! See the [Everything SDK documentation](https://www.voidtools.com/support/everything/sdk/) for more information.  
 //!
 //! # Example
 //! ```rust
@@ -41,6 +41,9 @@ use bitflags::bitflags;
 use everything_sys::*;
 use widestring::{U16CStr, U16CString};
 
+/// Represents errors that can occur when using the Everything SDK and that will be returned by Everything.get_last_error().   
+/// See <https://www.voidtools.com/support/everything/sdk/everything_getlasterror/>   
+/// Note that there is no documentation for EVERYTHING_ERROR_INVALIDREQUEST or EVERYTHING_ERROR_INVALIDPARAMETER   
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd)]
 pub enum EverythingError {
@@ -60,8 +63,8 @@ pub enum EverythingError {
     InvalidIndex = EVERYTHING_ERROR_INVALIDINDEX,
     /// invalid call
     InvalidCall = EVERYTHING_ERROR_INVALIDCALL,
-    /// Occurs when attempting to read a result attribute without setting the request flags for it.
-    /// You must set request flags before trying to read a result.
+    /// Occurs when attempting to read a result attribute without setting the request flags for it.  
+    /// You must set request flags before trying to read a result.  
     InvalidRequest = EVERYTHING_ERROR_INVALIDREQUEST,
     /// bad parameter.
     InvalidParameter = EVERYTHING_ERROR_INVALIDPARAMETER,
@@ -94,6 +97,8 @@ impl TryFrom<u32> for EverythingError {
     }
 }
 
+/// Types of sorting that everything can supports.  
+/// See <https://www.voidtools.com/support/everything/sdk/everything_setsort/>  
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum EverythingSort {
@@ -214,7 +219,7 @@ impl TryFrom<u32> for EverythingSort {
 bitflags! {
     /// Input to the Everything.set_request_flags() function.
     /// Defines what file information is loaded into memory by everything when query is called.
-    /// See https://www.voidtools.com/support/everything/sdk/everything_getrequestflags/ for more information.
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_getrequestflags/> for more information.
     #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
     pub struct EverythingRequestFlags: u32 {
         const FileName = EVERYTHING_REQUEST_FILE_NAME;
@@ -246,11 +251,11 @@ impl U64Able for FILETIME {
     }
 }
 
-/// Checks for a null pointer and gets the last everything error if there is one.
-/// Otherwise, iterate until the null pointer is reached and return a string.
-/// # Arguments
+/// Checks for a null pointer and gets the last everything error if there is one.   
+/// Otherwise, iterate until the null pointer is reached and return a string.  
+/// # Arguments  
 ///
-/// * `ptr` - A pointer to a u16 string returned by the Everything API.
+/// * `ptr` - A pointer to a u16 string returned by the Everything API.  
 fn parse_string_ptr(ptr: *const u16) -> Result<String, EverythingError> {
     if ptr.is_null() {
         let error_code = Everything::get_last_error();
@@ -260,16 +265,19 @@ fn parse_string_ptr(ptr: *const u16) -> Result<String, EverythingError> {
     Ok(unsafe { U16CStr::from_ptr_str(ptr).to_string_lossy() })
 }
 
-/// A wrapper around the Everything API.
-/// Calls cleanup on drop.
+/// A wrapper around the Everything API.  
+/// Calls cleanup on drop.  
 pub struct Everything;
 
 impl Everything {
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_getlasterror/>  
     pub fn get_last_error() -> EverythingError {
         let error_code = unsafe { Everything_GetLastError() };
         error_code.try_into().unwrap()
     }
 
+    /// Sleep the current thread until the Everything database is loaded.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_isdbloaded/>  
     pub fn wait_db_loaded() {
         let sleep_duration = 300;
         let max_wait_time = 60 * 1000 * 2;
@@ -295,6 +303,8 @@ impl Everything {
         }
     }
 
+    /// Set the query to be used by the next call to query.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_setsearch/>  
     pub fn set_search(&self, search: &str) {
         let wide_search = U16CString::from_str(search).expect("Failed to convert search string");
         unsafe {
@@ -302,17 +312,31 @@ impl Everything {
         }
     }
 
+    /// Get the current query.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_getsearch/>  
+    ///
+    /// Search Syntax reference can be seen here   
+    /// <https://www.voidtools.com/support/everything/searching/>   
+    /// More search functions can be found on the forums.   
+    /// <https://www.voidtools.com/forum/viewtopic.php?t=10091>  
+    /// <https://www.voidtools.com/forum/viewtopic.php?t=10176>  
+    /// <https://www.voidtools.com/forum/viewtopic.php?t=10099>  
+    /// <https://www.voidtools.com/forum/viewtopic.php?t=10860>  
     pub fn get_search(&self) -> Result<String, EverythingError> {
         let search_ptr = unsafe { Everything_GetSearchW() };
         parse_string_ptr(search_ptr)
     }
 
+    /// Set the sorting to be used by the next call to query.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_setsort/>  
     pub fn set_sort(&self, sort: EverythingSort) {
         unsafe {
             Everything_SetSort(sort.into());
         }
     }
 
+    /// Get the current sorting.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_getsort/>  
     pub fn get_sort(&self) -> Option<EverythingSort> {
         let sort = unsafe { Everything_GetSort() };
         if let Ok(eve_sort) = sort.try_into() {
@@ -322,56 +346,79 @@ impl Everything {
         }
     }
 
+    /// Check if the sort type is indexed.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_isfastsort/>  
     pub fn is_fast_sort(&self, sort: EverythingSort) -> bool {
         unsafe { Everything_IsFastSort(sort.into()) != 0 }
     }
 
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_isfileresult/>  
     pub fn is_result_file(&self, index: DWORD) -> bool {
         unsafe { Everything_IsFileResult(index) != 0 }
     }
 
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_isfolderresult/>  
     pub fn is_result_folder(&self, index: DWORD) -> bool {
         unsafe { Everything_IsFolderResult(index) != 0 }
     }
 
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_isvolumeresult/>  
     pub fn is_result_volume(&self, index: DWORD) -> bool {
         unsafe { Everything_IsVolumeResult(index) != 0 }
     }
 
+    /// Returns the number of visible results in everything's memory.  
+    /// Will be 0 until the first call to query.  
+    /// Then will equal the number of max results specified by set_max_results.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_getnumresults/>  
     pub fn get_num_results(&self) -> DWORD {
         unsafe { Everything_GetNumResults() }
     }
 
+    /// Returns the number of results returned by the query.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_gettotresults/>  
     pub fn get_total_results(&self) -> DWORD {
         unsafe { Everything_GetTotResults() }
     }
 
+    /// Limit's the number of results returned by the everything.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_setmax/>  
     pub fn set_max_results(&self, max_results: DWORD) {
         unsafe {
             Everything_SetMax(max_results);
         }
     }
 
+    /// Returns the current maximum number of results.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_getmax/>  
     pub fn get_max_results(&self) -> DWORD {
         unsafe { Everything_GetMax() }
     }
 
+    /// Set the index offset that everything will start its result window from.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_setoffset/>  
     pub fn set_result_offset(&self, offset_results: DWORD) {
         unsafe {
             Everything_SetOffset(offset_results);
         }
     }
 
+    /// Returns the current result offset.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_getoffset/>  
     pub fn get_result_offset(&self) -> DWORD {
         unsafe { Everything_GetOffset() }
     }
 
+    /// Set the type of data that the everything service will load.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_setreplywindow/>  
     pub fn set_request_flags(&self, request_flags: EverythingRequestFlags) {
         unsafe {
             Everything_SetRequestFlags(request_flags.bits());
         }
     }
 
+    /// Returns the current request flags.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_getrequestflags/>  
     pub fn get_request_flags(&self) -> EverythingRequestFlags {
         let request_flags = unsafe { Everything_GetRequestFlags() };
         EverythingRequestFlags::from_bits_truncate(request_flags)
@@ -386,16 +433,22 @@ impl Everything {
         }
     }
 
+    /// Reset the query state.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_reset/>  
     pub fn reset(&self) {
         unsafe {
             Everything_Reset();
         }
     }
 
+    /// Returns the total number of indexes in the everything result window.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_getnumfileresults/>  
     pub fn get_result_count(&self) -> u32 {
         unsafe { Everything_GetNumResults() }
     }
 
+    /// Creates a owned string from full path slice for a result at an index.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_getresultfullpathname/>  
     pub fn get_result_full_path(&self, index: u32) -> Result<String, EverythingError> {
         let path_length =
             unsafe { Everything_GetResultFullPathNameW(index, std::ptr::null_mut(), 0) };
@@ -417,11 +470,15 @@ impl Everything {
         }
     }
 
+    /// Returns an iterator over the full paths of the results.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_getresultfullpathname/>  
     pub fn full_path_iter(&self) -> impl Iterator<Item = Result<String, EverythingError>> + '_ {
         let num_results = self.get_result_count();
         (0..num_results).map(|index| self.get_result_full_path(index))
     }
 
+    /// Iterates from the pointer to find a null terminator returning an owned string.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_getresultfilename/>  
     pub fn get_result_file_name(&self, index: u32) -> Result<String, EverythingError> {
         let result_ptr = unsafe { Everything_GetResultFileNameW(index) };
 
@@ -433,11 +490,15 @@ impl Everything {
         parse_string_ptr(result_ptr)
     }
 
+    /// Returns an iterator over the file names of the results.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_getresultfilename/>  
     pub fn name_iter(&self) -> impl Iterator<Item = Result<String, EverythingError>> + '_ {
         let num_results = self.get_result_count();
         (0..num_results).map(|index| self.get_result_file_name(index))
     }
 
+    /// Returns the created date of the result at the index.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_getresultdatecreated/>  
     pub fn get_result_created_date(&self, index: u32) -> Result<u64, EverythingError> {
         let mut file_time: FILETIME = FILETIME {
             dwLowDateTime: 0,
@@ -454,6 +515,8 @@ impl Everything {
         Ok(file_time.as_u64())
     }
 
+    /// Returns the modified date of the result at the index.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_getresultdatemodified/>  
     pub fn get_result_count_modified_date(&self, index: u32) -> Result<u64, EverythingError> {
         let mut file_time: FILETIME = FILETIME {
             dwLowDateTime: 0,
@@ -470,6 +533,8 @@ impl Everything {
         Ok(file_time.as_u64())
     }
 
+    /// Returns the last accessed date of the result at the index.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_getresultdateaccessed/>  
     pub fn get_result_size(&self, index: u32) -> Result<u64, EverythingError> {
         let mut size: LARGE_INTEGER = LARGE_INTEGER { QuadPart: 0 };
 
@@ -483,6 +548,9 @@ impl Everything {
         Ok(unsafe { size.QuadPart as u64 })
     }
 
+    /// Returns the extension of the result at the index.  
+    /// iterates from a string pointer to find a null terminator returning an owned string.  
+    /// See <https://www.voidtools.com/support/everything/sdk/everything_getresultextension/>  
     pub fn get_result_extension(&self, index: u32) -> Result<String, EverythingError> {
         let result_ptr = unsafe { Everything_GetResultExtensionW(index) };
 
@@ -494,6 +562,7 @@ impl Everything {
         parse_string_ptr(result_ptr)
     }
 
+    /// Waits for the Everything database to be fully loaded before returning an instance.
     pub fn new() -> Everything {
         Everything::wait_db_loaded();
         Everything
