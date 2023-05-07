@@ -49,6 +49,11 @@ for path in everything.full_path_iter().flatten() {
 
 ```
 
+For more examples see the test modules in the everything-sys and everything crates.
+- https://github.com/reedHam/everything-wrapper/blob/27c3f93f6f30bce0a68e61816c428a0d77fb8348/everything_sys/src/lib.rs#L8
+- https://github.com/reedHam/everything-wrapper/blob/27c3f93f6f30bce0a68e61816c428a0d77fb8348/everything/src/lib.rs#L492
+
+
 ## Building
 After creating the target directory, you must copy the dll file to the target directory. 
 The dll file can be found in the Everything SDK installation directory.  
