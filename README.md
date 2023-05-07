@@ -59,8 +59,6 @@ After creating the target directory, you must copy the dll file to the target di
 The dll file can be found in the Everything SDK installation directory.  
 The dll file is named `Everything64.dll`  
 
-Currently the build scripts have a hardcoded path to the dll file that works on my machine any PRs to fix this are welcome.
-
 ## node-everything
 This is a simple nodejs ffi wrapper around the Everything SDK.
 This is a work in progress and is not ready for use and should only be used as an example.
