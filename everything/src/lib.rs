@@ -1,3 +1,38 @@
+//! # Everything
+//! This crate provides a safe wrapper around the `everything_sys`.
+//! `everything_sys` is a rust binding to the [Everything SDK](https://www.voidtools.com/support/everything/sdk/) that allow IPC communication to the everything service.
+//! The Everything service indexes files on windows and provides a expressive query syntax to search for files.
+//! See the [Everything SDK documentation](https://www.voidtools.com/support/everything/sdk/) for more information.
+//!
+//! # Example
+//! ```rust
+//! use everything::{Everything, EverythingRequestFlags, EverythingSort};
+//!
+//! let mut everything = Everything::new();
+//!
+//! everything.set_search("test");
+//!
+//! everything.set_request_flags(
+//!     EverythingRequestFlags::FullPathAndFileName
+//!     | EverythingRequestFlags::Size
+//!     | EverythingRequestFlags::DateCreated
+//! );
+//!
+//! everything.set_sort(EverythingSort::DateCreatedDescending);
+//!
+//! everything.query().unwrap();
+//!
+//! let num_results = everything.get_num_results();
+//!
+//! assert!(num_results > 0);
+//!
+//! for (i, path) in everything.full_path_iter().flatten().enumerate() {
+//!     let size = everything.get_result_size(i as u32).unwrap();
+//!     let date_created = everything.get_result_created_date(i as u32).unwrap();
+//!     println!("{}: {} {} {}", i, path, size, date_created);
+//! }
+//! ```
+
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
@@ -9,25 +44,26 @@ use widestring::{U16CStr, U16CString};
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd)]
 pub enum EverythingError {
-    // no error detected
+    /// no error detected
     Ok = EVERYTHING_OK,
-    // out of memory.
+    /// out of memory.
     Memory = EVERYTHING_ERROR_MEMORY,
-    // Everything search client is not running
+    /// Everything search client is not running
     Ipc = EVERYTHING_ERROR_IPC,
-    // unable to register window class.
+    /// unable to register window class.
     RegisterClassEx = EVERYTHING_ERROR_REGISTERCLASSEX,
-    // unable to create listening window
+    /// unable to create listening window
     CreateWindow = EVERYTHING_ERROR_CREATEWINDOW,
-    // unable to create listening thread
+    /// unable to create listening thread
     CreateThread = EVERYTHING_ERROR_CREATETHREAD,
-    // invalid index
+    /// invalid index
     InvalidIndex = EVERYTHING_ERROR_INVALIDINDEX,
-    // invalid call
+    /// invalid call
     InvalidCall = EVERYTHING_ERROR_INVALIDCALL,
-    // invalid request data, request data first.
+    /// Occurs when attempting to read a result attribute without setting the request flags for it.
+    /// You must set request flags before trying to read a result.
     InvalidRequest = EVERYTHING_ERROR_INVALIDREQUEST,
-    // bad parameter.
+    /// bad parameter.
     InvalidParameter = EVERYTHING_ERROR_INVALIDPARAMETER,
 }
 
@@ -176,6 +212,9 @@ impl TryFrom<u32> for EverythingSort {
 }
 
 bitflags! {
+    /// Input to the Everything.set_request_flags() function.
+    /// Defines what file information is loaded into memory by everything when query is called.
+    /// See https://www.voidtools.com/support/everything/sdk/everything_getrequestflags/ for more information.
     #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
     pub struct EverythingRequestFlags: u32 {
         const FileName = EVERYTHING_REQUEST_FILE_NAME;
@@ -207,18 +246,25 @@ impl U64Able for FILETIME {
     }
 }
 
+/// Checks for a null pointer and gets the last everything error if there is one.
+/// Otherwise, iterate until the null pointer is reached and return a string.
+/// # Arguments
+///
+/// * `ptr` - A pointer to a u16 string returned by the Everything API.
+fn parse_string_ptr(ptr: *const u16) -> Result<String, EverythingError> {
+    if ptr.is_null() {
+        let error_code = Everything::get_last_error();
+        panic!("Error code: {:?}", error_code);
+    }
+
+    Ok(unsafe { U16CStr::from_ptr_str(ptr).to_string_lossy() })
+}
+
+/// A wrapper around the Everything API.
+/// Calls cleanup on drop.
 pub struct Everything;
 
 impl Everything {
-    fn parse_string_ptr(ptr: *const u16) -> Result<String, EverythingError> {
-        if ptr.is_null() {
-            let error_code = Everything::get_last_error();
-            panic!("Error code: {:?}", error_code);
-        }
-
-        Ok(unsafe { U16CStr::from_ptr_str(ptr).to_string_lossy() })
-    }
-
     pub fn get_last_error() -> EverythingError {
         let error_code = unsafe { Everything_GetLastError() };
         error_code.try_into().unwrap()
@@ -258,7 +304,7 @@ impl Everything {
 
     pub fn get_search(&self) -> Result<String, EverythingError> {
         let search_ptr = unsafe { Everything_GetSearchW() };
-        Everything::parse_string_ptr(search_ptr)
+        parse_string_ptr(search_ptr)
     }
 
     pub fn set_sort(&self, sort: EverythingSort) {
@@ -384,7 +430,7 @@ impl Everything {
             return Err(error_code);
         }
 
-        Everything::parse_string_ptr(result_ptr)
+        parse_string_ptr(result_ptr)
     }
 
     pub fn name_iter(&self) -> impl Iterator<Item = Result<String, EverythingError>> + '_ {
@@ -445,7 +491,7 @@ impl Everything {
             return Err(error_code);
         }
 
-        Everything::parse_string_ptr(result_ptr)
+        parse_string_ptr(result_ptr)
     }
 
     pub fn new() -> Everything {
@@ -486,6 +532,15 @@ mod tests {
 
     lazy_static! {
         static ref EVERYTHING: Everything = Everything::new();
+    }
+
+    #[test]
+    fn parses_string_ptr() {
+        let test_string = "test\0";
+        let test_string_ptr = test_string.encode_utf16().collect::<Vec<u16>>();
+        let test_string_ptr = test_string_ptr.as_ptr();
+        let parsed_string = parse_string_ptr(test_string_ptr).unwrap();
+        assert_eq!(parsed_string, test_string[0..4]);
     }
 
     #[test]
