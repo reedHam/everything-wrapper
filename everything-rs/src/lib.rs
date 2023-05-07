@@ -43,13 +43,15 @@
 
 use bitflags::bitflags;
 use everything_sys_bindgen::*;
+use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 use widestring::{U16CStr, U16CString};
 
 /// Represents errors that can occur when using the Everything SDK and that will be returned by Everything.get_last_error().   
 /// See <https://www.voidtools.com/support/everything/sdk/everything_getlasterror/>   
 /// Note that there is no documentation for EVERYTHING_ERROR_INVALIDREQUEST or EVERYTHING_ERROR_INVALIDPARAMETER   
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize, TS)]
 pub enum EverythingError {
     /// no error detected
     Ok = EVERYTHING_OK,
@@ -104,7 +106,7 @@ impl TryFrom<u32> for EverythingError {
 /// Types of sorting that everything can supports.  
 /// See <https://www.voidtools.com/support/everything/sdk/everything_setsort/>  
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
 pub enum EverythingSort {
     NameAscending = EVERYTHING_SORT_NAME_ASCENDING,
     NameDescending = EVERYTHING_SORT_NAME_DESCENDING,
