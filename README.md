@@ -1,4 +1,4 @@
-# Everything SDK Rust Wrapper
+# Everything SDK Wrapper
 
 ## Requirements
 - Everything SDK 1.4.1 
@@ -11,7 +11,7 @@
 
 ### Rust modules
 - `everything-sys-bindgen` - Rust bindings to the Everything SDK C API
-- `everything` - A more ergonomic wrapper around the everything-sys-bindgen
+- `everything-rs` - A more ergonomic wrapper around the everything-sys-bindgen
 
 ## Documentation
 - [Everything SDK](https://www.voidtools.com/support/everything/sdk/)
