@@ -2,6 +2,7 @@
 name = "everything_sys"
 version = "0.1.0"
 edition = "2021"
+include = ["src/**/*.rs", "Cargo.toml", "Cargo.lock", "Everything64.dll"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
