@@ -8,7 +8,7 @@ readme = "README.md"
 repository = "https://github.com/reedHam/everything-wrapper"
 homepage = "https://github.com/reedHam/everything-wrapper"
 license = "MIT OR Apache-2.0"
-keywords = ["everything", "search", "windows", "file", "database"]
+keywords = ["everything", "search", "windows", "file system", "database"]
 categories = ['api-bindings', 'database', "os::windows-apis"]
 
 
@@ -19,8 +19,8 @@ include = ["src/**/*.rs", "Cargo.toml", "Cargo.lock", "Everything64.dll"]
 
 [dependencies]
 bitflags = "2.2.1"
-everything-sys-bindgen = "0.1.0"
-widestring = "1.0.2"
+everything-sys-bindgen = { path = "../everything-sys-bindgen" }
+widestring = "*"
 
 
 [dev-dependencies]

@@ -82,8 +82,6 @@ dependencies = [
 [[package]]
 name = "everything-sys-bindgen"
 version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4164e1149efa0a16fce7bae550077c6bedd70827d84ca040cd8879884b0b2d03"
 dependencies = [
  "bindgen",
 ]
