@@ -1,5 +1,5 @@
 [package]
-name = "everything"
+name = "everything-rs"
 version = "0.1.0"
 edition = "2021"
 authors = ["Reed Hambrook", "reed.hambrook@gmail.com"]

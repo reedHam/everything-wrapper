@@ -6,7 +6,7 @@
 //!
 //! # Example
 //! ```rust
-//! use everything::{Everything, EverythingRequestFlags, EverythingSort, EverythingError};
+//! use everything_rs::{Everything, EverythingRequestFlags, EverythingSort, EverythingError};
 //!
 //! fn main() -> Result<(), EverythingError> {
 //!    let mut everything = Everything::new();
