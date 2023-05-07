@@ -74,13 +74,13 @@ name = "everything"
 version = "0.1.0"
 dependencies = [
  "bitflags 2.2.1",
- "everything_sys",
+ "everything-sys-bindgen",
  "lazy_static",
  "widestring",
 ]
 
 [[package]]
-name = "everything_sys"
+name = "everything-sys-bindgen"
 version = "0.1.0"
 dependencies = [
  "bindgen",

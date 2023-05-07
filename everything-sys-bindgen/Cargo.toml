@@ -1,5 +1,5 @@
 [package]
-name = "everything_sys"
+name = "everything-sys-bindgen"
 version = "0.1.0"
 edition = "2021"
 authors = ["Reed Hambrook", "reed.hambrook@gmail.com"]
