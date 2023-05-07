@@ -11,7 +11,7 @@
 
 ### Rust modules
 - `everything-sys-bindgen` - Rust bindings to the Everything SDK C API
-- `everything-rs` - A more ergonomic wrapper around the everything-sys-bindgen
+- `everything-rs` - A more ergonomic wrapper around everything-sys-bindgen
 
 ## Documentation
 - [Everything SDK](https://www.voidtools.com/support/everything/sdk/)
