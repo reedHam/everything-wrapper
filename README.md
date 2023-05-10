@@ -11,7 +11,7 @@
 
 ### Rust modules
 - `everything-sys-bindgen` - Rust bindings to the Everything SDK C API
-- `everything-rs` - A more ergonomic wrapper around the everything-sys-bindgen
+- `everything-rs` - A more ergonomic wrapper around everything-sys-bindgen
 
 ## Documentation
 - [Everything SDK](https://www.voidtools.com/support/everything/sdk/)
@@ -58,8 +58,6 @@ For more examples see the test modules in the everything-sys-bindgen and everyth
 After creating the target directory, you must copy the dll file to the target directory. 
 The dll file can be found in the Everything SDK installation directory.  
 The dll file is named `Everything64.dll`  
-
-Currently the build scripts have a hardcoded path to the dll file that works on my machine any PRs to fix this are welcome.
 
 ## node-everything
 This is a simple nodejs ffi wrapper around the Everything SDK.
