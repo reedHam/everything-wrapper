@@ -258,7 +258,7 @@ impl U64Able for FILETIME {
 }
 
 /// Checks for a null pointer and gets the last everything error if there is one.   
-/// Otherwise, iterate until the null pointer is reached and return a string.  
+/// Otherwise, iterate until null is reached and return a string.  
 /// # Arguments  
 ///
 /// * `ptr` - A pointer to a u16 string returned by the Everything API.  
@@ -273,40 +273,36 @@ fn parse_string_ptr(ptr: *const u16) -> Result<String, EverythingError> {
 
 /// A wrapper around the Everything API.  
 /// Calls cleanup on drop.  
+#[derive(Debug)]
 pub struct Everything;
 
 impl Everything {
     /// See <https://www.voidtools.com/support/everything/sdk/everything_getlasterror/>  
-    pub fn get_last_error() -> EverythingError {
+    pub fn get_last_error() -> Result<(), EverythingError> {
         let error_code = unsafe { Everything_GetLastError() };
-        error_code.try_into().unwrap()
+        match error_code.try_into().unwrap() {
+            EverythingError::Ok => Ok(()),
+            err => Err(err),
+        }
     }
 
     /// Sleep the current thread until the Everything database is loaded.  
     /// See <https://www.voidtools.com/support/everything/sdk/everything_isdbloaded/>  
-    pub fn wait_db_loaded() {
+    pub fn wait_db_loaded() -> Result<(), EverythingError> {
         let sleep_duration = 300;
         let max_wait_time = 60 * 1000 * 2;
         let mut wait_time = 0;
 
         unsafe {
             while Everything_IsDBLoaded() == 0 {
-                match Everything::get_last_error() {
-                    EverythingError::Ok => {
-                        std::thread::sleep(std::time::Duration::from_millis(sleep_duration));
-                        wait_time += sleep_duration;
-                    }
-                    _ => panic!(
-                        "Error waiting for database to load (code: {:?})",
-                        Everything::get_last_error()
-                    ),
-                }
-
+                Everything::get_last_error()?;
                 if wait_time < max_wait_time {
                     panic!("Timeout waiting for everything to load");
                 }
             }
         }
+
+        Ok(())
     }
 
     /// Set the query to be used by the next call to query.  
@@ -433,7 +429,7 @@ impl Everything {
     pub fn query(&self) -> Result<(), EverythingError> {
         let result = unsafe { Everything_QueryW(1) };
         if result == 0 {
-            Err(Everything::get_last_error())
+            Everything::get_last_error()
         } else {
             Ok(())
         }
@@ -459,8 +455,7 @@ impl Everything {
         let path_length =
             unsafe { Everything_GetResultFullPathNameW(index, std::ptr::null_mut(), 0) };
         if path_length == 0 {
-            let error_code = Everything::get_last_error();
-            return Err(error_code);
+            Everything::get_last_error()?;
         }
 
         // Length does not include null terminator
@@ -489,8 +484,7 @@ impl Everything {
         let result_ptr = unsafe { Everything_GetResultFileNameW(index) };
 
         if result_ptr.is_null() {
-            let error_code = Everything::get_last_error();
-            return Err(error_code);
+            Everything::get_last_error()?;
         }
 
         parse_string_ptr(result_ptr)
@@ -514,8 +508,7 @@ impl Everything {
         let success = unsafe { Everything_GetResultDateCreated(index, &mut file_time) };
 
         if success == 0 {
-            let error_code = Everything::get_last_error();
-            return Err(error_code);
+            Everything::get_last_error()?;
         }
 
         Ok(file_time.as_u64())
@@ -532,8 +525,7 @@ impl Everything {
         let success = unsafe { Everything_GetResultDateModified(index, &mut file_time) };
 
         if success == 0 {
-            let error_code = Everything::get_last_error();
-            return Err(error_code);
+            Everything::get_last_error()?;
         }
 
         Ok(file_time.as_u64())
@@ -547,8 +539,7 @@ impl Everything {
         let success = unsafe { Everything_GetResultSize(index, &mut size) };
 
         if success == 0 {
-            let error_code = Everything::get_last_error();
-            return Err(error_code);
+            Everything::get_last_error()?;
         }
 
         Ok(unsafe { size.QuadPart as u64 })
@@ -561,8 +552,7 @@ impl Everything {
         let result_ptr = unsafe { Everything_GetResultExtensionW(index) };
 
         if result_ptr.is_null() {
-            let error_code = Everything::get_last_error();
-            return Err(error_code);
+            Everything::get_last_error()?;
         }
 
         parse_string_ptr(result_ptr)
