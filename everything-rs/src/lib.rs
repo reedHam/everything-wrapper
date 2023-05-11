@@ -459,10 +459,13 @@ impl Everything {
         }
 
         // Length does not include null terminator
-        let mut path_buffer = Vec::with_capacity(path_length as usize);
+        let mut path_buffer = Vec::with_capacity(path_length as usize + 1);
         unsafe {
-            let count_copied =
-                Everything_GetResultFullPathNameW(index, path_buffer.as_mut_ptr(), path_length);
+            let count_copied = Everything_GetResultFullPathNameW(
+                index,
+                path_buffer.as_mut_ptr(),
+                path_buffer.len() as u32,
+            );
             Ok(
                 U16CStr::from_ptr(path_buffer.as_ptr(), count_copied as usize)
                     .unwrap()
@@ -594,10 +597,9 @@ impl Default for Everything {
 mod tests {
     use super::*;
     use lazy_static::lazy_static;
+    use std::path::Path;
 
-    lazy_static! {
-        static ref EVERYTHING: Everything = Everything::new();
-    }
+    lazy_static! {}
 
     #[test]
     fn parses_string_ptr() {
@@ -609,17 +611,44 @@ mod tests {
     }
 
     #[test]
+    fn parses_full_path() {
+        let test_dir_path = Path::canonicalize(Path::new("../test")).unwrap();
+        let test_dir_path = test_dir_path.to_str().unwrap();
+        let test_dir_path = test_dir_path.trim_start_matches(r"\\?\");
+
+        println!("{}", test_dir_path);
+
+        let evthing = Everything::new();
+
+        evthing.set_search(test_dir_path);
+        evthing.set_request_flags(EverythingRequestFlags::FullPathAndFileName);
+
+        evthing.query().unwrap();
+
+        let num_results = evthing.get_result_count();
+
+        assert!(num_results > 0);
+
+        for path in evthing.full_path_iter().flatten() {
+            println!("{}", path);
+            assert!(path.contains(test_dir_path));
+        }
+    }
+
+    #[test]
     fn searches() {
-        EVERYTHING.set_search("test");
-        let search = EVERYTHING.get_search().unwrap();
+        let everything: Everything = Everything::new();
+
+        everything.set_search("test");
+        let search = everything.get_search().unwrap();
         assert_eq!(search, "test");
 
-        EVERYTHING.set_max_results(10);
-        let max_results = EVERYTHING.get_max_results();
+        everything.set_max_results(10);
+        let max_results = everything.get_max_results();
         assert_eq!(max_results, 10);
 
-        EVERYTHING.set_result_offset(10);
-        let offset = EVERYTHING.get_result_offset();
+        everything.set_result_offset(10);
+        let offset = everything.get_result_offset();
         assert_eq!(offset, 10);
 
         let flag = EverythingRequestFlags::FullPathAndFileName
@@ -627,38 +656,38 @@ mod tests {
             | EverythingRequestFlags::DateModified
             | EverythingRequestFlags::Size
             | EverythingRequestFlags::Extension;
-        EVERYTHING.set_request_flags(flag);
+        everything.set_request_flags(flag);
 
-        let flags = EVERYTHING.get_request_flags();
+        let flags = everything.get_request_flags();
         assert_eq!(flags, flag);
 
-        EVERYTHING.set_sort(EverythingSort::DateCreatedDescending);
+        everything.set_sort(EverythingSort::DateCreatedDescending);
 
-        EVERYTHING.query().unwrap();
+        everything.query().unwrap();
 
-        let num_results = EVERYTHING.get_result_count();
+        let num_results = everything.get_result_count();
         assert_eq!(num_results, 10);
 
         let full_path_results: Vec<Result<String, EverythingError>> =
-            EVERYTHING.full_path_iter().collect();
+            everything.full_path_iter().collect();
 
         assert_eq!(full_path_results.len(), 10);
 
-        let mut last_date_created = EVERYTHING.get_result_created_date(0).unwrap();
+        let mut last_date_created = everything.get_result_created_date(0).unwrap();
         for idx in 0..num_results {
-            let result = EVERYTHING.get_result_full_path(idx).unwrap();
+            let result = everything.get_result_full_path(idx).unwrap();
             let iter_result = full_path_results[idx as usize].as_ref().unwrap();
             assert_eq!(result, *iter_result);
 
-            let size = EVERYTHING.get_result_size(idx).unwrap();
+            let size = everything.get_result_size(idx).unwrap();
             assert!(size > 0);
 
-            let created_date = EVERYTHING.get_result_created_date(idx).unwrap();
+            let created_date = everything.get_result_created_date(idx).unwrap();
             assert!(created_date > 0);
             assert!(created_date <= last_date_created);
             last_date_created = created_date;
 
-            let modified_date = EVERYTHING.get_result_count_modified_date(idx).unwrap();
+            let modified_date = everything.get_result_count_modified_date(idx).unwrap();
             assert!(modified_date > 0);
         }
     }
