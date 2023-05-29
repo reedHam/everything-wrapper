@@ -6,9 +6,7 @@ fn main() {
     // Code modified from https://rust-lang.github.io/rust-bindgen/tutorial-3.html
     let everything_sdk_path = fs::canonicalize(Path::new(r#"..\Everything-SDK\lib"#)).unwrap();
     println!("cargo:rustc-link-search={}", everything_sdk_path.display());
-
-    println!("cargo:rustc-link-lib=Everything64");
-
+    println!("cargo:rustc-link-lib=dylib=Everything64");
     println!("cargo:rerun-if-changed=wrapper.h");
 
     let everything_regex_filter = "Everything.*|EVERYTHING.*";
