@@ -1,5 +1,9 @@
 # Everything SDK Wrapper
 
+## Crates
+- [everything-rs](https://crates.io/crates/everything-rs)
+- [everything-sys-bindgen](https://crates.io/crates/everything-sys-bindgen)
+
 ## Requirements
 - Everything SDK 1.4.1 
 - Windows 64-bit
