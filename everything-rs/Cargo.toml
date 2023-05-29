@@ -1,6 +1,6 @@
 [package]
 name = "everything-rs"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 authors = ["Reed Hambrook", "reed.hambrook@gmail.com"]
 description = "Ergonomic wrapper around everything-sys-bindgen for the Everything SDK"
@@ -18,7 +18,7 @@ include = ["src/**/*.rs", "Everything64.dll", "README.md"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-everything-sys-bindgen = "0.1.2"
+everything-sys-bindgen = "0.1.3"
 serde = { version = "1.0.162", features = ["derive"] }
 ts-rs = "6.2.1"
 widestring = "1.0.2"
