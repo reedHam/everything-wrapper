@@ -21,9 +21,8 @@ include = ["src/**/*.rs", "Everything64.dll", "README.md"]
 everything-sys-bindgen = "0.1.2"
 serde = { version = "1.0.162", features = ["derive"] }
 ts-rs = "6.2.1"
-widestring = "*"
-
+widestring = "1.0.2"
+bitflags = "2.3.1"
 
 [dev-dependencies]
 lazy_static = "1.4.0"
-bitflags = "2.2.1"
