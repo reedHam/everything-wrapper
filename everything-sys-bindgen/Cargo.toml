@@ -10,6 +10,7 @@ homepage = "https://github.com/reedHam/everything-wrapper/tree/master/everything
 license = "MIT OR Apache-2.0"
 keywords = ["everything", "sdk", "bindings", "ffi", "windows"]
 categories = ["external-ffi-bindings", "os::windows-apis"]
+targets = ["x86_64-pc-windows-msvc"]
 
 include = [
     "src/**/*.rs",
