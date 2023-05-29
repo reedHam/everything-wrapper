@@ -5,5 +5,5 @@ This crate provides a safe wrapper around the `everything-sys-bindgen` crate.
 The Everything service indexes files on windows and provides a expressive query syntax to search for files.  
 See the [Everything SDK documentation](https://www.voidtools.com/support/everything/sdk/) for more information.  
 
-See the crate.io documentation for examples. 
- -  [everything-rs](https://crates.io/crates/everything-rs) 
+See the docs.rs documentation for examples. 
+ -  [everything-rs](https://docs.rs/crates/everything-rs) 

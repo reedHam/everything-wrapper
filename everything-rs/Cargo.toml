@@ -1,6 +1,6 @@
 [package]
 name = "everything-rs"
-version = "0.1.7"
+version = "0.1.8"
 edition = "2021"
 authors = ["Reed Hambrook", "reed.hambrook@gmail.com"]
 description = "Ergonomic wrapper around everything-sys-bindgen for the Everything SDK"
@@ -30,3 +30,7 @@ bitflags = "2.3.1"
 
 [dev-dependencies]
 lazy_static = "1.4.0"
+
+[package.metadata.docs.rs]
+# This ensures your docs will be built using the windows-gnu target
+default-target = "x86_64-pc-windows-msvc"
