@@ -1,6 +1,6 @@
 [package]
 name = "everything-rs"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Reed Hambrook", "reed.hambrook@gmail.com"]
 description = "Ergonomic wrapper around everything-sys-bindgen for the Everything SDK"
@@ -12,7 +12,7 @@ keywords = ["everything", "search", "windows", "file system", "database"]
 categories = ['api-bindings', 'database', "os::windows-apis"]
 
 
-include = ["src/**/*.rs", "Cargo.toml", "Cargo.lock", "Everything64.dll"]
+include = ["src/**/*.rs", "Everything64.dll", "README.md"]
 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
