@@ -299,6 +299,8 @@ impl Everything {
                 if wait_time < max_wait_time {
                     panic!("Timeout waiting for everything to load");
                 }
+                std::thread::sleep(std::time::Duration::from_millis(sleep_duration));
+                wait_time += sleep_duration;
             }
         }
 
