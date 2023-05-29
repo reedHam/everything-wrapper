@@ -13,9 +13,9 @@ categories = ["external-ffi-bindings", "os::windows-apis"]
 
 include = [
     "src/**/*.rs",
-    "../EverythingSDK/Everything.h",
-    "../EverythingSDK/dll/*",
-    "../EverythingSDK/lib/*",
+    "EverythingSDK/Everything.h",
+    "EverythingSDK/dll/*",
+    "EverythingSDK/lib/*",
     "wrapper.h",
     "bindings.rs",
     "README.md",

@@ -1,1 +1,1 @@
-#include "..\\Everything-SDK\\include\\Everything.h"
+#include "Everything-SDK\\include\\Everything.h"
