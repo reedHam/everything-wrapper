@@ -1,6 +1,6 @@
 [package]
 name = "everything-sys-bindgen"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 authors = ["Reed Hambrook", "reed.hambrook@gmail.com"]
 description = "Bindings to the Everything SDK using bindgen"
