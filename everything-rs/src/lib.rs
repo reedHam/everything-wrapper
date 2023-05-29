@@ -41,6 +41,9 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
+#[cfg(target_os = "windows")]
+extern crate everything_sys_bindgen;
+
 use bitflags::bitflags;
 use everything_sys_bindgen::*;
 use serde::{Deserialize, Serialize};
