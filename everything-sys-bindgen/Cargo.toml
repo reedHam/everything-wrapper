@@ -13,11 +13,10 @@ categories = ["external-ffi-bindings", "os::windows-apis"]
 
 include = [
     "src/**/*.rs",
-    "EverythingSDK/Everything.h",
-    "EverythingSDK/dll/*",
-    "EverythingSDK/lib/*",
-    "wrapper.h",
-    "bindings.rs",
+    "Everything.h",
+    "Everything64.dll",
+    "Everything64.lib",
+    "Everything.rs",
     "README.md",
     "build.rs",
 ]
