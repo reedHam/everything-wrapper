@@ -74,4 +74,4 @@ Currently it dose not parse file paths very efficiently.
 - [x] Add more examples
 - [ ] Async queries
 - [ ] Automated build process
-- [ ] Publish to crates.io
+- [x] Publish to crates.io
