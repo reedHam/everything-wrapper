@@ -1,12 +1,13 @@
 [package]
 name = "everything-rs"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 authors = ["Reed Hambrook", "reed.hambrook@gmail.com"]
 description = "Ergonomic wrapper around everything-sys-bindgen for the Everything SDK"
 readme = "README.md"
 repository = "https://github.com/reedHam/everything-wrapper/tree/master/everything-rs"
 homepage = "https://github.com/reedHam/everything-wrapper/tree/master/everything-rs"
+documentation = "https://docs.rs/everything-rs"
 license = "MIT OR Apache-2.0"
 keywords = ["everything", "search", "windows", "files", "database"]
 categories = ['api-bindings', 'database', "os::windows-apis"]
