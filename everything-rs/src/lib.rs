@@ -41,189 +41,18 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
+mod error;
+mod sort;
+
 #[cfg(target_os = "windows")]
 extern crate everything_sys_bindgen;
 
 use bitflags::bitflags;
+pub use error::{EverythingError, EverythingResult, EverythingSDKError};
 use everything_sys_bindgen::*;
-use serde::{Deserialize, Serialize};
-use ts_rs::TS;
+pub use sort::EverythingSort;
+use std::time::Duration;
 use widestring::{U16CStr, U16CString};
-
-/// Represents errors that can occur when using the Everything SDK and that will be returned by Everything.get_last_error().   
-/// See <https://www.voidtools.com/support/everything/sdk/everything_getlasterror/>   
-/// Note that there is no documentation for EVERYTHING_ERROR_INVALIDREQUEST or EVERYTHING_ERROR_INVALIDPARAMETER   
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize, TS)]
-pub enum EverythingError {
-    /// no error detected
-    Ok = EVERYTHING_OK,
-    /// out of memory.
-    Memory = EVERYTHING_ERROR_MEMORY,
-    /// Everything search client is not running
-    Ipc = EVERYTHING_ERROR_IPC,
-    /// unable to register window class.
-    RegisterClassEx = EVERYTHING_ERROR_REGISTERCLASSEX,
-    /// unable to create listening window
-    CreateWindow = EVERYTHING_ERROR_CREATEWINDOW,
-    /// unable to create listening thread
-    CreateThread = EVERYTHING_ERROR_CREATETHREAD,
-    /// invalid index
-    InvalidIndex = EVERYTHING_ERROR_INVALIDINDEX,
-    /// invalid call
-    InvalidCall = EVERYTHING_ERROR_INVALIDCALL,
-    /// Occurs when attempting to read a result attribute without setting the request flags for it.  
-    /// You must set request flags before trying to read a result.  
-    InvalidRequest = EVERYTHING_ERROR_INVALIDREQUEST,
-    /// bad parameter.
-    InvalidParameter = EVERYTHING_ERROR_INVALIDPARAMETER,
-}
-
-impl From<EverythingError> for String {
-    fn from(error: EverythingError) -> Self {
-        format!("{:?}", error)
-    }
-}
-
-impl TryFrom<u32> for EverythingError {
-    type Error = &'static str;
-
-    fn try_from(error: u32) -> Result<Self, Self::Error> {
-        let err = match error {
-            EVERYTHING_OK => EverythingError::Ok,
-            EVERYTHING_ERROR_MEMORY => EverythingError::Memory,
-            EVERYTHING_ERROR_IPC => EverythingError::Ipc,
-            EVERYTHING_ERROR_REGISTERCLASSEX => EverythingError::RegisterClassEx,
-            EVERYTHING_ERROR_CREATEWINDOW => EverythingError::CreateWindow,
-            EVERYTHING_ERROR_CREATETHREAD => EverythingError::CreateThread,
-            EVERYTHING_ERROR_INVALIDINDEX => EverythingError::InvalidIndex,
-            EVERYTHING_ERROR_INVALIDCALL => EverythingError::InvalidCall,
-            EVERYTHING_ERROR_INVALIDREQUEST => EverythingError::InvalidRequest,
-            EVERYTHING_ERROR_INVALIDPARAMETER => EverythingError::InvalidParameter,
-            _ => Err("Unknown error code")?,
-        };
-        Ok(err)
-    }
-}
-
-/// Types of sorting that everything can supports.  
-/// See <https://www.voidtools.com/support/everything/sdk/everything_setsort/>  
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
-pub enum EverythingSort {
-    NameAscending = EVERYTHING_SORT_NAME_ASCENDING,
-    NameDescending = EVERYTHING_SORT_NAME_DESCENDING,
-    PathAscending = EVERYTHING_SORT_PATH_ASCENDING,
-    PathDescending = EVERYTHING_SORT_PATH_DESCENDING,
-    SizeAscending = EVERYTHING_SORT_SIZE_ASCENDING,
-    SizeDescending = EVERYTHING_SORT_SIZE_DESCENDING,
-    ExtensionAscending = EVERYTHING_SORT_EXTENSION_ASCENDING,
-    ExtensionDescending = EVERYTHING_SORT_EXTENSION_DESCENDING,
-    TypeNameAscending = EVERYTHING_SORT_TYPE_NAME_ASCENDING,
-    TypeNameDescending = EVERYTHING_SORT_TYPE_NAME_DESCENDING,
-    DateCreatedAscending = EVERYTHING_SORT_DATE_CREATED_ASCENDING,
-    DateCreatedDescending = EVERYTHING_SORT_DATE_CREATED_DESCENDING,
-    DateModifiedAscending = EVERYTHING_SORT_DATE_MODIFIED_ASCENDING,
-    DateModifiedDescending = EVERYTHING_SORT_DATE_MODIFIED_DESCENDING,
-    AttributesAscending = EVERYTHING_SORT_ATTRIBUTES_ASCENDING,
-    AttributesDescending = EVERYTHING_SORT_ATTRIBUTES_DESCENDING,
-    FileListFilenameAscending = EVERYTHING_SORT_FILE_LIST_FILENAME_ASCENDING,
-    FileListFilenameDescending = EVERYTHING_SORT_FILE_LIST_FILENAME_DESCENDING,
-    RunCountAscending = EVERYTHING_SORT_RUN_COUNT_ASCENDING,
-    RunCountDescending = EVERYTHING_SORT_RUN_COUNT_DESCENDING,
-    DateRecentlyChangedAscending = EVERYTHING_SORT_DATE_RECENTLY_CHANGED_ASCENDING,
-    DateRecentlyChangedDescending = EVERYTHING_SORT_DATE_RECENTLY_CHANGED_DESCENDING,
-    DateAccessedAscending = EVERYTHING_SORT_DATE_ACCESSED_ASCENDING,
-    DateAccessedDescending = EVERYTHING_SORT_DATE_ACCESSED_DESCENDING,
-    DateRunAscending = EVERYTHING_SORT_DATE_RUN_ASCENDING,
-    DateRunDescending = EVERYTHING_SORT_DATE_RUN_DESCENDING,
-}
-
-impl From<EverythingSort> for u32 {
-    fn from(sort: EverythingSort) -> Self {
-        match sort {
-            EverythingSort::NameAscending => EVERYTHING_SORT_NAME_ASCENDING,
-            EverythingSort::NameDescending => EVERYTHING_SORT_NAME_DESCENDING,
-            EverythingSort::PathAscending => EVERYTHING_SORT_PATH_ASCENDING,
-            EverythingSort::PathDescending => EVERYTHING_SORT_PATH_DESCENDING,
-            EverythingSort::SizeAscending => EVERYTHING_SORT_SIZE_ASCENDING,
-            EverythingSort::SizeDescending => EVERYTHING_SORT_SIZE_DESCENDING,
-            EverythingSort::ExtensionAscending => EVERYTHING_SORT_EXTENSION_ASCENDING,
-            EverythingSort::ExtensionDescending => EVERYTHING_SORT_EXTENSION_DESCENDING,
-            EverythingSort::TypeNameAscending => EVERYTHING_SORT_TYPE_NAME_ASCENDING,
-            EverythingSort::TypeNameDescending => EVERYTHING_SORT_TYPE_NAME_DESCENDING,
-            EverythingSort::DateCreatedAscending => EVERYTHING_SORT_DATE_CREATED_ASCENDING,
-            EverythingSort::DateCreatedDescending => EVERYTHING_SORT_DATE_CREATED_DESCENDING,
-            EverythingSort::DateModifiedAscending => EVERYTHING_SORT_DATE_MODIFIED_ASCENDING,
-            EverythingSort::DateModifiedDescending => EVERYTHING_SORT_DATE_MODIFIED_DESCENDING,
-            EverythingSort::AttributesAscending => EVERYTHING_SORT_ATTRIBUTES_ASCENDING,
-            EverythingSort::AttributesDescending => EVERYTHING_SORT_ATTRIBUTES_DESCENDING,
-            EverythingSort::FileListFilenameAscending => {
-                EVERYTHING_SORT_FILE_LIST_FILENAME_ASCENDING
-            }
-            EverythingSort::FileListFilenameDescending => {
-                EVERYTHING_SORT_FILE_LIST_FILENAME_DESCENDING
-            }
-            EverythingSort::RunCountAscending => EVERYTHING_SORT_RUN_COUNT_ASCENDING,
-            EverythingSort::RunCountDescending => EVERYTHING_SORT_RUN_COUNT_DESCENDING,
-            EverythingSort::DateRecentlyChangedAscending => {
-                EVERYTHING_SORT_DATE_RECENTLY_CHANGED_ASCENDING
-            }
-            EverythingSort::DateRecentlyChangedDescending => {
-                EVERYTHING_SORT_DATE_RECENTLY_CHANGED_DESCENDING
-            }
-            EverythingSort::DateAccessedAscending => EVERYTHING_SORT_DATE_ACCESSED_ASCENDING,
-            EverythingSort::DateAccessedDescending => EVERYTHING_SORT_DATE_ACCESSED_DESCENDING,
-            EverythingSort::DateRunAscending => EVERYTHING_SORT_DATE_RUN_ASCENDING,
-            EverythingSort::DateRunDescending => EVERYTHING_SORT_DATE_RUN_DESCENDING,
-        }
-    }
-}
-
-impl TryFrom<u32> for EverythingSort {
-    type Error = &'static str;
-
-    fn try_from(sort: u32) -> Result<Self, Self::Error> {
-        let sort = match sort {
-            EVERYTHING_SORT_NAME_ASCENDING => EverythingSort::NameAscending,
-            EVERYTHING_SORT_NAME_DESCENDING => EverythingSort::NameDescending,
-            EVERYTHING_SORT_PATH_ASCENDING => EverythingSort::PathAscending,
-            EVERYTHING_SORT_PATH_DESCENDING => EverythingSort::PathDescending,
-            EVERYTHING_SORT_SIZE_ASCENDING => EverythingSort::SizeAscending,
-            EVERYTHING_SORT_SIZE_DESCENDING => EverythingSort::SizeDescending,
-            EVERYTHING_SORT_EXTENSION_ASCENDING => EverythingSort::ExtensionAscending,
-            EVERYTHING_SORT_EXTENSION_DESCENDING => EverythingSort::ExtensionDescending,
-            EVERYTHING_SORT_TYPE_NAME_ASCENDING => EverythingSort::TypeNameAscending,
-            EVERYTHING_SORT_TYPE_NAME_DESCENDING => EverythingSort::TypeNameDescending,
-            EVERYTHING_SORT_DATE_CREATED_ASCENDING => EverythingSort::DateCreatedAscending,
-            EVERYTHING_SORT_DATE_CREATED_DESCENDING => EverythingSort::DateCreatedDescending,
-            EVERYTHING_SORT_DATE_MODIFIED_ASCENDING => EverythingSort::DateModifiedAscending,
-            EVERYTHING_SORT_DATE_MODIFIED_DESCENDING => EverythingSort::DateModifiedDescending,
-            EVERYTHING_SORT_ATTRIBUTES_ASCENDING => EverythingSort::AttributesAscending,
-            EVERYTHING_SORT_ATTRIBUTES_DESCENDING => EverythingSort::AttributesDescending,
-            EVERYTHING_SORT_FILE_LIST_FILENAME_ASCENDING => {
-                EverythingSort::FileListFilenameAscending
-            }
-            EVERYTHING_SORT_FILE_LIST_FILENAME_DESCENDING => {
-                EverythingSort::FileListFilenameDescending
-            }
-            EVERYTHING_SORT_RUN_COUNT_ASCENDING => EverythingSort::RunCountAscending,
-            EVERYTHING_SORT_RUN_COUNT_DESCENDING => EverythingSort::RunCountDescending,
-            EVERYTHING_SORT_DATE_RECENTLY_CHANGED_ASCENDING => {
-                EverythingSort::DateRecentlyChangedAscending
-            }
-            EVERYTHING_SORT_DATE_RECENTLY_CHANGED_DESCENDING => {
-                EverythingSort::DateRecentlyChangedDescending
-            }
-            EVERYTHING_SORT_DATE_ACCESSED_ASCENDING => EverythingSort::DateAccessedAscending,
-            EVERYTHING_SORT_DATE_ACCESSED_DESCENDING => EverythingSort::DateAccessedDescending,
-            EVERYTHING_SORT_DATE_RUN_ASCENDING => EverythingSort::DateRunAscending,
-            EVERYTHING_SORT_DATE_RUN_DESCENDING => EverythingSort::DateRunDescending,
-            _ => Err("Unknown sort code")?,
-        };
-        Ok(sort)
-    }
-}
 
 bitflags! {
     /// Input to the Everything.set_request_flags() function.
@@ -265,7 +94,7 @@ impl U64Able for FILETIME {
 /// # Arguments  
 ///
 /// * `ptr` - A pointer to a u16 string returned by the Everything API.  
-fn parse_string_ptr(ptr: *const u16) -> Result<String, EverythingError> {
+fn parse_string_ptr(ptr: *const u16) -> EverythingResult<String> {
     if ptr.is_null() {
         let error_code = Everything::get_last_error();
         panic!("Error code: {:?}", error_code);
@@ -281,27 +110,26 @@ pub struct Everything;
 
 impl Everything {
     /// See <https://www.voidtools.com/support/everything/sdk/everything_getlasterror/>  
-    pub fn get_last_error() -> Result<(), EverythingError> {
+    pub fn get_last_error() -> EverythingResult<()> {
         let error_code = unsafe { Everything_GetLastError() };
         match error_code.try_into().unwrap() {
-            EverythingError::Ok => Ok(()),
-            err => Err(err),
+            EverythingSDKError::Ok => Ok(()),
+            err => Err(EverythingError::SDKError(err)),
         }
     }
 
     /// Sleep the current thread until the Everything database is loaded.  
     /// See <https://www.voidtools.com/support/everything/sdk/everything_isdbloaded/>  
-    pub fn wait_db_loaded() -> Result<(), EverythingError> {
-        let sleep_duration = 300;
-        let max_wait_time = 60 * 1000 * 2;
-        let mut wait_time = 0;
+    pub fn wait_db_loaded(timeout: Duration) -> EverythingResult<()> {
+        let sleep_duration: u64 = 300;
+        let mut wait_time: u64 = 0;
 
         unsafe {
             while Everything_IsDBLoaded() == 0 {
-                Everything::get_last_error()?;
-                if wait_time < max_wait_time {
-                    panic!("Timeout waiting for everything to load");
+                if wait_time >= timeout.as_millis() as u64 {
+                    return Err(EverythingError::DatabaseTimeout);
                 }
+                Everything::get_last_error()?;
                 std::thread::sleep(std::time::Duration::from_millis(sleep_duration));
                 wait_time += sleep_duration;
             }
@@ -329,7 +157,7 @@ impl Everything {
     /// <https://www.voidtools.com/forum/viewtopic.php?t=10176>  
     /// <https://www.voidtools.com/forum/viewtopic.php?t=10099>  
     /// <https://www.voidtools.com/forum/viewtopic.php?t=10860>  
-    pub fn get_search(&self) -> Result<String, EverythingError> {
+    pub fn get_search(&self) -> EverythingResult<String> {
         let search_ptr = unsafe { Everything_GetSearchW() };
         parse_string_ptr(search_ptr)
     }
@@ -431,7 +259,7 @@ impl Everything {
         EverythingRequestFlags::from_bits_truncate(request_flags)
     }
 
-    pub fn query(&self) -> Result<(), EverythingError> {
+    pub fn query(&self) -> EverythingResult<()> {
         let result = unsafe { Everything_QueryW(1) };
         if result == 0 {
             Everything::get_last_error()
@@ -456,7 +284,7 @@ impl Everything {
 
     /// Creates a owned string from full path slice for a result at an index.  
     /// See <https://www.voidtools.com/support/everything/sdk/everything_getresultfullpathname/>  
-    pub fn get_result_full_path(&self, index: u32) -> Result<String, EverythingError> {
+    pub fn get_result_full_path(&self, index: u32) -> EverythingResult<String> {
         let path_length =
             unsafe { Everything_GetResultFullPathNameW(index, std::ptr::null_mut(), 0) };
         if path_length == 0 {
@@ -481,14 +309,14 @@ impl Everything {
 
     /// Returns an iterator over the full paths of the results.  
     /// See <https://www.voidtools.com/support/everything/sdk/everything_getresultfullpathname/>  
-    pub fn full_path_iter(&self) -> impl Iterator<Item = Result<String, EverythingError>> + '_ {
+    pub fn full_path_iter(&self) -> impl Iterator<Item = EverythingResult<String>> + '_ {
         let num_results = self.get_result_count();
         (0..num_results).map(|index| self.get_result_full_path(index))
     }
 
     /// Iterates from the pointer to find a null terminator returning an owned string.  
     /// See <https://www.voidtools.com/support/everything/sdk/everything_getresultfilename/>  
-    pub fn get_result_file_name(&self, index: u32) -> Result<String, EverythingError> {
+    pub fn get_result_file_name(&self, index: u32) -> EverythingResult<String> {
         let result_ptr = unsafe { Everything_GetResultFileNameW(index) };
 
         if result_ptr.is_null() {
@@ -500,14 +328,14 @@ impl Everything {
 
     /// Returns an iterator over the file names of the results.  
     /// See <https://www.voidtools.com/support/everything/sdk/everything_getresultfilename/>  
-    pub fn name_iter(&self) -> impl Iterator<Item = Result<String, EverythingError>> + '_ {
+    pub fn name_iter(&self) -> impl Iterator<Item = EverythingResult<String>> + '_ {
         let num_results = self.get_result_count();
         (0..num_results).map(|index| self.get_result_file_name(index))
     }
 
     /// Returns the created date of the result at the index.  
     /// See <https://www.voidtools.com/support/everything/sdk/everything_getresultdatecreated/>  
-    pub fn get_result_created_date(&self, index: u32) -> Result<u64, EverythingError> {
+    pub fn get_result_created_date(&self, index: u32) -> EverythingResult<u64> {
         let mut file_time: FILETIME = FILETIME {
             dwLowDateTime: 0,
             dwHighDateTime: 0,
@@ -524,7 +352,7 @@ impl Everything {
 
     /// Returns the modified date of the result at the index.  
     /// See <https://www.voidtools.com/support/everything/sdk/everything_getresultdatemodified/>  
-    pub fn get_result_count_modified_date(&self, index: u32) -> Result<u64, EverythingError> {
+    pub fn get_result_count_modified_date(&self, index: u32) -> EverythingResult<u64> {
         let mut file_time: FILETIME = FILETIME {
             dwLowDateTime: 0,
             dwHighDateTime: 0,
@@ -541,7 +369,7 @@ impl Everything {
 
     /// Returns the last accessed date of the result at the index.  
     /// See <https://www.voidtools.com/support/everything/sdk/everything_getresultdateaccessed/>  
-    pub fn get_result_size(&self, index: u32) -> Result<u64, EverythingError> {
+    pub fn get_result_size(&self, index: u32) -> EverythingResult<u64> {
         let mut size: LARGE_INTEGER = LARGE_INTEGER { QuadPart: 0 };
 
         let success = unsafe { Everything_GetResultSize(index, &mut size) };
@@ -556,7 +384,7 @@ impl Everything {
     /// Returns the extension of the result at the index.  
     /// iterates from a string pointer to find a null terminator returning an owned string.  
     /// See <https://www.voidtools.com/support/everything/sdk/everything_getresultextension/>  
-    pub fn get_result_extension(&self, index: u32) -> Result<String, EverythingError> {
+    pub fn get_result_extension(&self, index: u32) -> EverythingResult<String> {
         let result_ptr = unsafe { Everything_GetResultExtensionW(index) };
 
         if result_ptr.is_null() {
@@ -568,7 +396,7 @@ impl Everything {
 
     /// Waits for the Everything database to be fully loaded before returning an instance.
     pub fn new() -> Everything {
-        Everything::wait_db_loaded();
+        Everything::wait_db_loaded(Duration::from_secs(5)).expect("Everything database not loaded");
         Everything
     }
 
@@ -673,7 +501,7 @@ mod tests {
         let num_results = everything.get_result_count();
         assert_eq!(num_results, 10);
 
-        let full_path_results: Vec<Result<String, EverythingError>> =
+        let full_path_results: Vec<EverythingResult<String>> =
             everything.full_path_iter().collect();
 
         assert_eq!(full_path_results.len(), 10);
@@ -683,6 +511,7 @@ mod tests {
             let result = everything.get_result_full_path(idx).unwrap();
             let iter_result = full_path_results[idx as usize].as_ref().unwrap();
             assert_eq!(result, *iter_result);
+            println!("{}", result);
 
             let size = everything.get_result_size(idx).unwrap();
             assert!(size > 0);
