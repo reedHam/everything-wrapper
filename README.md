@@ -66,7 +66,7 @@ The dll file is named `Everything64.dll`
 ## node-everything
 This is a simple nodejs ffi wrapper around the Everything SDK.
 This is a work in progress and is not ready for use and should only be used as an example.
-Currently it dose not parse file paths very efficiently.
+Currently it does not parse file paths very efficiently.
 
 ## TODO
 - [x] Add more tests
