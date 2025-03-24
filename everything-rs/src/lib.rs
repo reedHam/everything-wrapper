@@ -431,8 +431,17 @@ mod tests {
     use super::*;
     use lazy_static::lazy_static;
     use std::path::Path;
+    use std::sync::Mutex;
 
-    lazy_static! {}
+    lazy_static! {
+        static ref TEST_EVERYTHING: Mutex<Everything> = Mutex::new(Everything::new());
+    }
+
+    fn setup() -> std::sync::MutexGuard<'static, Everything> {
+        let everything = TEST_EVERYTHING.lock().unwrap();
+        everything.reset();
+        everything
+    }
 
     #[test]
     fn parses_string_ptr() {
@@ -451,7 +460,7 @@ mod tests {
 
         println!("{}", test_dir_path);
 
-        let evthing = Everything::new();
+        let evthing = setup();
 
         evthing.set_search(test_dir_path);
         evthing.set_request_flags(EverythingRequestFlags::FullPathAndFileName);
@@ -470,7 +479,7 @@ mod tests {
 
     #[test]
     fn searches() {
-        let everything: Everything = Everything::new();
+        let everything = setup();
 
         everything.set_search("test");
         let search = everything.get_search().unwrap();

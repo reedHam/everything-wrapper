@@ -87,6 +87,30 @@ pub enum EverythingError {
     SDKError(#[from] EverythingSDKError),
     #[error("Timeout waiting for Everything to respond")]
     DatabaseTimeout,
+    #[error("Null pointer returned by Everything SDK")]
+    NullPointerError,
+}
+
+impl EverythingError {
+    /// Returns a user-friendly error message with hints on how to resolve the issue
+    pub fn to_user_friendly_message(&self) -> String {
+        match self {
+            EverythingError::SDKError(EverythingSDKError::Ipc) => {
+                "Connection to Everything service failed. Is Everything running? \
+                Please make sure the Everything application is running and try again."
+                    .to_string()
+            }
+            EverythingError::SDKError(EverythingSDKError::Memory) => {
+                "Out of memory error. The system might be low on resources.".to_string()
+            }
+            EverythingError::DatabaseTimeout => {
+                "Timeout waiting for Everything database. The database might be still loading or \
+                the Everything service might be busy. Please try again later."
+                    .to_string()
+            }
+            _ => self.to_string(),
+        }
+    }
 }
 
 pub type EverythingResult<T> = Result<T, EverythingError>;

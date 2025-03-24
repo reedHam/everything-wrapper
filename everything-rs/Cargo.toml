@@ -11,7 +11,6 @@ documentation = "https://docs.rs/everything-rs"
 license = "MIT OR Apache-2.0"
 keywords = ["everything", "search", "windows", "files", "database"]
 categories = ['api-bindings', 'database', "os::windows-apis"]
-targets = ["x86_64-pc-windows-msvc"]
 
 include = ["src/**/*.rs", "Everything64.dll", "README.md"]
 
@@ -19,14 +18,15 @@ include = ["src/**/*.rs", "Everything64.dll", "README.md"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-thiserror = "1.0.40"
+thiserror = "1.0.50"
+proc-macro2 = "1.0.71"
 
 [target.'cfg(windows)'.dependencies]
 everything-sys-bindgen = "0.1.5"
-serde = { version = "1.0.162", features = ["derive"] }
-ts-rs = "6.2.1"
+serde = { version = "1.0.196", features = ["derive"] }
+ts-rs = "7.1.1"
 widestring = "1.0.2"
-bitflags = "2.3.1"
+bitflags = "2.4.2"
 
 [dev-dependencies]
 lazy_static = "1.4.0"
