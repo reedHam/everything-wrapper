@@ -1,5 +1,3 @@
-I recomend using this project instead https://github.com/owtotwo/everything-sdk-rs/tree/main. 
-
 # Everything SDK Wrapper
 
 ## Crates
@@ -77,3 +75,6 @@ Currently it does not parse file paths very efficiently.
 - [ ] Async queries
 - [ ] Automated build process
 - [x] Publish to crates.io
+
+
+Other implementations https://github.com/owtotwo/everything-sdk-rs/tree/main. 
