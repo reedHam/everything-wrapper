@@ -1,3 +1,5 @@
+I recomend using this project instead https://github.com/owtotwo/everything-sdk-rs/tree/main. 
+
 # Everything SDK Wrapper
 
 ## Crates
